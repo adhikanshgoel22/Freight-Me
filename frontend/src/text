@@ -1,0 +1,20 @@
+freight-me/
+├── public/
+│   └── index.html
+├── src/
+│   ├── assets/
+│   │   └── logo-placeholder.png
+│   ├── components/
+│   │   ├── Login.jsx
+│   │   ├── Dashboard.jsx
+│   │   └── BookingForm.jsx
+│   ├── pages/
+│   │   ├── Home.jsx
+│   │   └── ComingSoon.jsx
+│   ├── App.jsx
+│   ├── main.jsx
+│   └── supabaseClient.js
+├── tailwind.config.js
+├── index.css
+├── .env
+└── package.json
