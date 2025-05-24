@@ -5,7 +5,7 @@ const libraries = ['places']
 
 export default function GoogleMapsProvider({ children }) {
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyCaBaCT1RBLpuEefWowV_LWe8lXDHK0JH0",
+    googleMapsApiKey:process.env.MAPS_API_KEY ,
     libraries,
   })
   

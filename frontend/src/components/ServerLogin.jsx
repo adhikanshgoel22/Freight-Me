@@ -14,7 +14,7 @@ export default function ServerLogin({ onLogin }) {
   
     // Simulate network delay
     setTimeout(() => {
-      if (email === 'InstallMe' && password === '2025FrieghtMe*') {
+      if (email === process.env.MAIL && password === process.env.PASSWORD) {
         onLogin() // simulate successful login
       } else {
         setError('Invalid email or password')
