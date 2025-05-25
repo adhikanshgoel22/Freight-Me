@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabase' // Ensure this points to your configured Supabase client
+import { useNavigate } from 'react-router-dom'
 
 export default function ServerLogin({ onLogin }) {
   const [email, setEmail] = useState('')
@@ -7,15 +7,21 @@ export default function ServerLogin({ onLogin }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
+  const navigate = useNavigate()
+
   const handleSubmit = (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-  
-    // Simulate network delay
+
     setTimeout(() => {
-      if (email === process.env.MAIL && password === process.env.PASSWORD) {
-        onLogin() // simulate successful login
+      const envUser = process.env.REACT_APP_SERVER_USERNAME
+      const envPass = process.env.REACT_APP_SERVER_PASS
+
+      if (email === envUser && password === envPass) {
+        localStorage.setItem('server_auth', 'true')
+        onLogin?.()
+        navigate('/tix')
       } else {
         setError('Invalid email or password')
       }
@@ -31,8 +37,9 @@ export default function ServerLogin({ onLogin }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
+              id="email"
               type="text"
               className="w-full p-2 border rounded-md"
               value={email}
@@ -42,8 +49,9 @@ export default function ServerLogin({ onLogin }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">Password</label>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
             <input
+              id="password"
               type="password"
               className="w-full p-2 border rounded-md"
               value={password}
