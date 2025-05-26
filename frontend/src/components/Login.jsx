@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../supabase' // Ensure this points to your configured Supabase client
+import axios from 'axios'
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState('')
@@ -7,20 +7,24 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
-  
-    // Simulate network delay
-    setTimeout(() => {
-      if (email === 'test@example.com' && password === '1234') {
-        onLogin() // simulate successful login
-      } else {
-        setError('Invalid email or password')
-      }
+
+    try {
+      const res = await axios.post('http://localhost:5000/login', {
+        email,
+        password,
+      })
+
+      onLogin(res.data.user)
+    } catch (err) {
+      console.error(err)
+      setError(err?.response?.data?.error || 'Login failed')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -33,7 +37,7 @@ export default function Login({ onLogin }) {
           <div>
             <label className="block text-sm font-medium text-gray-700">Email</label>
             <input
-              type="email"
+              type="text"
               className="w-full p-2 border rounded-md"
               value={email}
               onChange={(e) => setEmail(e.target.value)}

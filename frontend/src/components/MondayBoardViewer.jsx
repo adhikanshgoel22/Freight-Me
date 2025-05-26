@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 
-const MONDAY_API_KEY = "";; // Replace with your Monday.com API key
-const BOARD_ID =  process.env.BOARD_ID;        // Replace with your board ID (number)
+const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY; // Replace with your Monday.com API key
+const BOARD_ID = process.env.REACT_APP_BOARD_ID;        // Replace with your board ID (number)
 
 export default function MondayBoardInfo() {
   const [data, setData] = useState(null);

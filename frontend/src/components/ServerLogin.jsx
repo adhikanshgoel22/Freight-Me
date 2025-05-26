@@ -1,32 +1,40 @@
+import axios from 'axios'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 export default function ServerLogin({ onLogin }) {
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setError(null)
     setLoading(true)
 
-    setTimeout(() => {
-      const envUser = process.env.REACT_APP_SERVER_USERNAME
-      const envPass = process.env.REACT_APP_SERVER_PASS
+    try {
+      const res = await axios.post('http://localhost:5000/server-login', {
+        username,
+        password,
+      })
 
-      if (email === envUser && password === envPass) {
+      // Your backend sends back { user } on success
+      if (res.data.user) {
         localStorage.setItem('server_auth', 'true')
-        onLogin?.()
-        navigate('/tix')
+        onLogin?.(res.data.user)
+        navigate("/server/view")
       } else {
-        setError('Invalid email or password')
+        setError('Invalid username or password')
       }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err?.response?.data?.error || 'Login failed')
+    } finally {
       setLoading(false)
-    }, 1000)
+    }
   }
 
   return (
@@ -37,13 +45,14 @@ export default function ServerLogin({ onLogin }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 text-left">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
             <input
-              id="email"
+              id="username"
               type="text"
+              autoComplete="username"
               className="w-full p-2 border rounded-md"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -53,6 +62,7 @@ export default function ServerLogin({ onLogin }) {
             <input
               id="password"
               type="password"
+              autoComplete="current-password"
               className="w-full p-2 border rounded-md"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
