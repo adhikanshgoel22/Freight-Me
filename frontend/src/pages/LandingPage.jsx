@@ -19,7 +19,7 @@ export default function LandingPage() {
           Enter a ticket number, fetch data from Monday.com, and autofill forms seamlessly.
         </p>
         <a
-          href="/dashboard"
+          href="/login"
           className="px-6 py-3 bg-blue-700 text-white rounded-full text-sm font-medium shadow-lg hover:bg-blue-800 transition"
         >
           Get Started
