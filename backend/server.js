@@ -174,6 +174,64 @@ app.post('/ticket', async (req, res) => {
   }
 })
 
+
+// API endpoint to send data to FastCourier
+app.post('/api/send-to-fastcourier', async (req, res) => {
+  const {
+    pickup_address,
+    dropoff_address,
+    length,
+    width,
+    height,
+    weight,
+    reference,
+  } = req.body;
+
+  try {
+    const response = await axios.post('https://enterprise.fastcourier.com.au/api/create-shipment', {
+      pickup_address,
+      dropoff_address,
+      length,
+      width,
+      height,
+      weight,
+      reference,
+    }, {
+      headers: {
+        Authorization: `Bearer ${process.env.FASTCOURIER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    res.status(200).json({ success: true, tracking_id: response.data.tracking_id });
+  } catch (err) {
+    console.error('Error submitting to FastCourier:', err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`)
 })
+
+
+
+// // === BACKEND (Node.js + Express) ===
+// // server.js
+
+// const express = require('express');
+// const cors = require('cors');
+// const axios = require('axios');
+// require('dotenv').config();
+
+// const app = express();
+// app.use(cors());
+// app.use(express.json());
+
+// const PORT = process.env.PORT || 5000;
+
+
+
+// app.listen(PORT, () => {
+//   console.log(`Server running on http://localhost:${PORT}`);
+// });

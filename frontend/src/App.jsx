@@ -10,6 +10,8 @@ import MondayBoardViewer from './components/MondayBoardViewer';
 import MondayTableWithExport from './components/ServerTable';
 import LandingPage from './pages/LandingPage';
 import Dashboard from './components/Dashboard';
+import ClientTable from './components/ClientTable';
+import Contact from './pages/Contact';
 export default function App() {
   return (
     <GoogleMapsProvider>
@@ -26,6 +28,8 @@ export default function App() {
         <Route path="/ti" element={<TableWithDownload/>} />
         <Route path="/server/view" element={<MondayTableWithExport/>} />
         <Route path="/view2" element={<MondayBoardViewer/>} />
+        <Route path="/client/view" element={<ClientTable/>} />
+        <Route path="/contact" element={<Contact/>} />
       </Routes>
     </GoogleMapsProvider>
   )

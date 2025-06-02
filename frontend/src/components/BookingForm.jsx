@@ -1,5 +1,9 @@
 import { useState, useCallback, useRef } from 'react'
 import { Autocomplete, GoogleMap, Marker } from '@react-google-maps/api'
+import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom'; // only if you're using react-router
+import Footer from './Footer';
+
 
 // Replace with your values
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY
@@ -36,6 +40,15 @@ const defaultCenter = { lat: -33.8688, lng: 151.2093 };
 
 
 export default function BookingForm() {
+  const navigate = useNavigate(); // inside the BookingForm component
+
+useEffect(() => {
+  const user = localStorage.getItem('user');
+  if (!user || user === 'undefined' || user === 'null') {
+    navigate('/login');
+  }
+}, [navigate]);
+
   const [ticketNumber, setTicketNumber] = useState('');
   const [pickup, setPickup] = useState('');
   const [pickupCoords, setPickupCoords] = useState(null);
@@ -194,7 +207,30 @@ export default function BookingForm() {
   };
 
   return (
+    
     <div className="max-w-2xl mx-auto p-4">
+      {/* Top Navigation Bar */}
+<div className="w-full flex justify-between items-center p-4 rounded-md mb-4">
+  {/* <h1 className="text-lg font-semibold text-gray-800">Booking Form</h1> */}
+  <div className="flex gap-2">
+    <a
+      href="/client/view"
+      className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+    >
+      View Table
+    </a>
+    <button
+      onClick={() => {
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+      }}
+      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+    >
+      Logout
+    </button>
+  </div>
+</div>
+
       {/* Ticket input */}
       <div className="mb-4">
         <label className="block text-gray-700 font-medium mb-1">Ticket Number</label>
@@ -281,6 +317,7 @@ export default function BookingForm() {
           {/* <p className="text-gray-800">{confirmColumnValue}</p> */}
         </div>
       )}
+      
     </div>
   );
 }
