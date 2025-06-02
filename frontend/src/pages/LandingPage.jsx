@@ -36,7 +36,7 @@ const LandingPage = () => {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="animate-fade-in">
               <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight mb-6">
-                Revolutionize Your
+                Revolutionise Your
                 <span className="text-blue-600 block">Delivery Business</span>
               </h1>
               <p className="text-xl text-gray-600 mb-8 leading-relaxed">
@@ -226,7 +226,7 @@ const LandingPage = () => {
               <h3 className="text-lg font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Pricing</a></li>
                 
               </ul>
             </div>
@@ -235,8 +235,8 @@ const LandingPage = () => {
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#" className="hover:text-white transition-colors">About</a></li>
                 <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
             <div>

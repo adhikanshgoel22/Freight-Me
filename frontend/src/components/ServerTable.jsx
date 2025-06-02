@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import Header from "./Navbar";
 
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
@@ -9,6 +10,7 @@ const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 const EXPORT_COLUMNS = ['text01', 'text03', 'location9', 'long_text2'];
 const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
 
+const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
 export default function MondayTableWithExport() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
 
@@ -193,7 +195,7 @@ export default function MondayTableWithExport() {
   Object.values(row).some((value) =>
     typeof value === 'string' &&
     value.toLowerCase().includes('replace entire panel')
-  ) || /-2$/.test(row['text01']);
+  ) || /2$/.test(row['text01']);
 
   return matchesSearch && (!showReplaceOnly || hasReplaceText);
 });
@@ -203,7 +205,9 @@ export default function MondayTableWithExport() {
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div>
+      <Header></Header>
+      <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-semibold mb-4 text-center text-blue-700">
         COMMBOX PANELS INVENTORY
       </h2>
@@ -262,12 +266,12 @@ export default function MondayTableWithExport() {
             </div>
 
             <div className="space-y-2">
-              {EXPORT_COLUMNS.map((col, j) => (
-                <div key={j} className="text-sm">
-                  <span className="font-medium text-gray-700">{col}:</span>{' '}
-                  <span className="text-gray-800">{row[col] || '—'}</span>
-                </div>
-              ))}
+               {EXPORT_COLUMNS.map((col, j) => (
+  <div key={j} className="text-sm">
+    <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
+    <span className="text-gray-800">{row[col] || '—'}</span>
+  </div>
+))}
 
               <div className="mt-3">
                 <label className="block text-sm font-medium text-gray-700">PANEL STATUS</label>
@@ -303,6 +307,7 @@ export default function MondayTableWithExport() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

@@ -194,7 +194,7 @@ export default function ClientTable() {
   Object.values(row).some((value) =>
     typeof value === 'string' &&
     value.toLowerCase().includes('replace entire panel')
-  ) || /-2$/.test(row['text01']);
+  ) || /2$/.test(row['text01']);
 
 
   return matchesSearch && (!showReplaceOnly || hasReplaceText);
@@ -204,8 +204,10 @@ export default function ClientTable() {
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+    <div>
         <Header></Header>
+        <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
+        
       <h2 className="text-3xl font-semibold mb-4 text-center text-blue-700">
         COMMBOX PANELS INVENTORY
       </h2>
@@ -291,6 +293,7 @@ export default function ClientTable() {
           </div>
         ))}
       </div>
+    </div>
     </div>
   );
 }

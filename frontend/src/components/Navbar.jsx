@@ -20,9 +20,7 @@ const Header=()=>{
               <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
                 <a href="/login">Sign In</a>
               </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Get Started
-              </Button>
+              
             </div>
           </div>
         </div>
