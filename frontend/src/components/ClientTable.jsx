@@ -8,11 +8,12 @@ const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
 const EXPORT_COLUMNS = ['text01', 'text03', 'location9', 'long_text2'];
-const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
 const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
 
+const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
 export default function ClientTable() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
+
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -185,57 +186,75 @@ export default function ClientTable() {
     window.open(url, '_blank');
   };
 
-   const filteredData = data.filter((row) => {
+ const filteredData = data.filter((row) => {
   const matchesSearch = headers.some((key) =>
     (row[key] || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const hasReplaceText =
+    const hasReplaceText =
   Object.values(row).some((value) =>
     typeof value === 'string' &&
     value.toLowerCase().includes('replace entire panel')
   ) || /2$/.test(row['text01']);
 
-
   return matchesSearch && (!showReplaceOnly || hasReplaceText);
 });
+
 
   if (loading) return <p className="p-6 text-gray-600">Loading Monday.com data...</p>;
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
     <div>
-        <Header></Header>
-        <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-        
+      <Header></Header>
+      <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
       <h2 className="text-3xl font-semibold mb-4 text-center text-blue-700">
         COMMBOX PANELS INVENTORY
       </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+  {/* Left side buttons */}
+  <div className="flex gap-3">
+    <button
+      onClick={() => {
+        localStorage.removeItem('user');
+        window.location.href = '/';
+      }}
+      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+    >
+      Logout
+    </button>
 
-      <div className="flex justify-center mb-6">
-        <input
-          type="text"
-          placeholder="Search by any field..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md px-4 py-2 border rounded-lg shadow-sm"
-        />
-      </div>
+    <button
+      onClick={() => setShowReplaceOnly((prev) => !prev)}
+      className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+    >
+      {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
+    </button>
+  </div>
 
-      <div className="mb-6 flex justify-center">
-        <button
-          onClick={downloadCSV}
-          className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-        >
-          Download CSV
-        </button>
-      </div>
-      <button
-    onClick={() => setShowReplaceOnly((prev) => !prev)}
-    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-  >
-    {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
-  </button>
+  {/* Center search bar */}
+  <div className="flex justify-center w-full sm:w-auto">
+    <input
+      type="text"
+      placeholder="Search by any field..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full sm:w-[300px] px-4 py-2 border rounded-lg shadow-sm"
+    />
+  </div>
+
+  {/* Right side button */}
+  <div className="flex justify-end">
+    <button
+      onClick={downloadCSV}
+      className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+    >
+      Download CSV
+    </button>
+  </div>
+</div>
+
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredData.map((row) => (
@@ -256,39 +275,29 @@ export default function ClientTable() {
             </div>
 
             <div className="space-y-2">
-              {EXPORT_COLUMNS.map((col, j) => (
+               {EXPORT_COLUMNS.map((col, j) => (
   <div key={j} className="text-sm">
     <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
     <span className="text-gray-800">{row[col] || '—'}</span>
   </div>
 ))}
 
+              <div className="text-sm mt-3">
+  <span className="font-medium text-gray-700">Panel Status:</span>{' '}
+  <span className="text-gray-800">
+    {deliveryTypes[row.id] || '—'}
+  </span>
+</div>
 
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700">Delivery Type:</label>
-                <input
-  type="text"
-  value={deliveryTypes[row.id] || ''}
-  readOnly
-  className="mt-1 w-full px-3 py-1 border rounded-md shadow-sm bg-gray-100 cursor-not-allowed"
-/>
+<div className="flex gap-2 mt-2">
+  <button
+    onClick={() => redirectToFastCourier(row)}
+    className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
+  >
+    Go to FastCourier
+  </button>
+</div>
 
-
-                <div className="flex gap-2 mt-2">
-                  {/* <button
-                    onClick={() => updateDeliveryType(row.id)}
-                    className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Save
-                  </button> */}
-                  <button
-                    onClick={() => redirectToFastCourier(row)}
-                    className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                  >
-                    Go to FastCourier
-                  </button>
-                </div>
-              </div>
             </div>
           </div>
         ))}

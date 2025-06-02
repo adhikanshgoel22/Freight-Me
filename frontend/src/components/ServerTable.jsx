@@ -211,7 +211,10 @@ export default function MondayTableWithExport() {
       <h2 className="text-3xl font-semibold mb-4 text-center text-blue-700">
         COMMBOX PANELS INVENTORY
       </h2>
-      <button
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+  {/* Left side buttons */}
+  <div className="flex gap-3">
+    <button
       onClick={() => {
         localStorage.removeItem('user');
         window.location.href = '/';
@@ -220,32 +223,37 @@ export default function MondayTableWithExport() {
     >
       Logout
     </button>
-      <div className="flex justify-center mb-6">
-        <input
-          type="text"
-          placeholder="Search by any field..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="w-full max-w-md px-4 py-2 border rounded-lg shadow-sm"
-        />
-      </div>
 
-      <div className="mb-6 flex justify-center">
-        <button
-          onClick={downloadCSV}
-          className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-        >
-          Download CSV
-        </button>
-      </div>
-<div className="mb-4 flex justify-center">
-  <button
-    onClick={() => setShowReplaceOnly((prev) => !prev)}
-    className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-  >
-    {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
-  </button>
+    <button
+      onClick={() => setShowReplaceOnly((prev) => !prev)}
+      className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+    >
+      {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
+    </button>
+  </div>
+
+  {/* Center search bar */}
+  <div className="flex justify-center w-full sm:w-auto">
+    <input
+      type="text"
+      placeholder="Search by any field..."
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+      className="w-full sm:w-[300px] px-4 py-2 border rounded-lg shadow-sm"
+    />
+  </div>
+
+  {/* Right side button */}
+  <div className="flex justify-end">
+    <button
+      onClick={downloadCSV}
+      className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+    >
+      Download CSV
+    </button>
+  </div>
 </div>
+
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {filteredData.map((row) => (
