@@ -27,7 +27,7 @@ export default function Login({ onLogin }) {
     setError(null)
 
     try {
-      const res = await axios.post("http://localhost:5000/login", {
+      const res = await axios.post("https://freight-me-1.onrender.com/login", {
         email,
         password,
       })

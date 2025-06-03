@@ -37,7 +37,7 @@ export default function MondayTableWithExport() {
       }
 
       const ticketRef = data.find(d => d.id === rowId)?.text01 || '';
-      const res = await axios.post(`http://localhost:5000/ticket`, {
+      const res = await axios.post(`https://freight-me-1.onrender.com/ticket`, {
         text01: ticketRef,
         delivery_type: selectedType,
       });
@@ -85,7 +85,7 @@ export default function MondayTableWithExport() {
 
       const mondayItems = mondayRes.data.data.boards[0]?.items_page?.items || [];
 
-      const supabaseRes = await axios.get('http://localhost:5000/tickets');
+      const supabaseRes = await axios.get('https://freight-me-1.onrender.com/tickets');
       const ticketMap = {};
       supabaseRes.data.tickets.forEach((t) => {
         ticketMap[t.text01] = t.delivery_type;

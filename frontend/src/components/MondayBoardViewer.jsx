@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import Header from './Navbar';
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY; // Replace with your Monday.com API key
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;        // Replace with your board ID (number)
 
@@ -45,7 +45,9 @@ export default function MondayBoardInfo() {
   }, []);
 
   return (
-    <div className="p-6">
+    <div>
+      <Header></Header>
+      <div className="p-6">
       <h1 className="text-xl font-semibold mb-4">Monday.com Board Info</h1>
 
       {error && <p className="text-red-500">Error: {JSON.stringify(error)}</p>}
@@ -57,6 +59,7 @@ export default function MondayBoardInfo() {
       ) : (
         <p>Loading...</p>
       )}
+    </div>
     </div>
   );
 }

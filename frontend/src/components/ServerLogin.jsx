@@ -16,7 +16,7 @@ export default function ServerLogin({ onLogin }) {
     setLoading(true)
 
     try {
-      const res = await axios.post('http://localhost:5000/server-login', {
+      const res = await axios.post('https://freight-me-1.onrender.com/server-login', {
         username,
         password,
       })
