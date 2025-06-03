@@ -14,8 +14,9 @@ import Contact from './pages/Contact';
 
 export default function App() {
   return (
+
     <GoogleMapsProvider>
-      <Router>
+      
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Home />} />
@@ -29,7 +30,7 @@ export default function App() {
           <Route path="/contact" element={<Contact />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
-      </Router>
+     
     </GoogleMapsProvider>
   );
 }
