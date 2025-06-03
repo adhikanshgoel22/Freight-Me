@@ -1,34 +1,62 @@
 
 import { ArrowRight, Truck, MapPin, Clock, Package, Briefcase, CheckCircle } from "lucide-react";
 import { Button } from '../components/ui/button.tsx'  // adjust relative path as needed
+import { useState } from "react";
+import { Menu, X} from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/Card.tsx";
 
 const LandingPage = () => {
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white">
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
-              <Truck className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">InstallMe</span>
-            </div>
-            <div className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-              <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
-              <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
-              <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
-                <a href="/login">Sign In</a>
-              </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="flex justify-between items-center h-16">
+      {/* Logo */}
+      <div className="flex items-center space-x-2">
+        <Truck className="h-8 w-8 text-blue-600" />
+        <span className="text-xl font-bold text-gray-900">InstallMe</span>
+      </div>
+
+      {/* Desktop Nav */}
+      <div className="hidden md:flex items-center space-x-8">
+        <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
+        <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+        <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
+        <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
+          <a href="/login">Sign In</a>
+        </Button>
+        <Button className="bg-blue-600 hover:bg-blue-700">
+          Get Started
+        </Button>
+      </div>
+
+      {/* Hamburger Icon */}
+      <div className="md:hidden">
+        <button onClick={() => setOpen(!open)} className="text-gray-600 hover:text-blue-600">
+          {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {/* Mobile Menu */}
+  {open && (
+    <div className="md:hidden px-4 pb-4">
+      <div className="flex flex-col space-y-4 mt-4">
+        <a href="#features" className="text-gray-700 hover:text-blue-600">Features</a>
+        <a href="/contact" className="text-gray-700 hover:text-blue-600">Pricing</a>
+        <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a>
+        <a href="/login" className="text-gray-700 hover:text-blue-600 border rounded px-4 py-2 border-blue-200">Sign In</a>
+        <Button className="bg-blue-600 hover:bg-blue-700 w-full">Get Started</Button>
+      </div>
+    </div>
+  )}
+</nav>
+
 
       {/* Hero Section */}
       <section className="relative overflow-hidden">
