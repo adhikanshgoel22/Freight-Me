@@ -85,7 +85,7 @@ export default function ClientTable() {
 
       const mondayItems = mondayRes.data.data.boards[0]?.items_page?.items || [];
 
-      const supabaseRes = await axios.get('https://freight-me-1.onrender.com/tickets');
+      const supabaseRes = await axios.get('http://localhost:5000/tickets');
       const ticketMap = {};
       supabaseRes.data.tickets.forEach((t) => {
         ticketMap[t.text01] = t.delivery_type;
@@ -201,7 +201,7 @@ export default function ClientTable() {
 });
 
 
-  if (loading) return <p className="p-6 text-gray-600">Loading Monday.com data...</p>;
+  if (loading) return <p className="p-6 text-gray-600">Loading Data....</p>;
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
@@ -244,64 +244,89 @@ export default function ClientTable() {
   </div>
 
   {/* Right side button */}
-  <div className="flex justify-end">
+  {/* <div className="flex justify-end">
     <button
       onClick={downloadCSV}
       className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
     >
       Download CSV
     </button>
-  </div>
+  </div> */}
 </div>
 
 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredData.map((row) => (
-          <div
-            key={row.id}
-            className="border rounded-lg shadow p-4 bg-gray-50 hover:shadow-md transition"
+  {filteredData.map((row) => {
+    const status = deliveryTypes[row.id] || "Unknown"
+
+    const statusColor = {
+      "Panel Delivered": "bg-green-100",
+      "Panel in Transit": "bg-yellow-100",
+      "Panel with Tech": "bg-red-100",
+      
+      Unknown: "bg-gray-100",
+    }[status] || "bg-gray-100"
+
+    const DropOff="TSS Camelia"
+
+    return (
+      <div
+        key={row.id}
+        className={`border rounded-lg shadow p-4 hover:shadow-md transition ${statusColor}`}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold text-blue-700">
+            {row.Name || "Untitled"}
+          </h3>
+          {/* PDF download button (optional) */}
+          {/* <button
+            onClick={() => downloadRowAsPDF(row)}
+            className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold text-blue-700">
-                {row.Name || 'Untitled'}
-              </h3>
-              <button
-                onClick={() => downloadRowAsPDF(row)}
-                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                PDF
-              </button>
-            </div>
+            PDF
+          </button> */}
+        </div>
 
-            <div className="space-y-2">
-               {EXPORT_COLUMNS.map((col, j) => (
-  <div key={j} className="text-sm">
-    <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
-    <span className="text-gray-800">{row[col] || '—'}</span>
-  </div>
-))}
+        <div className="space-y-2">
+          {EXPORT_COLUMNS.map((col, j) => {
+  const label = ColTitle[j];
+  let value = row[col] || "—";
 
-              <div className="text-sm mt-3">
-  <span className="font-medium text-gray-700">Panel Status:</span>{' '}
-  <span className="text-gray-800">
-    {deliveryTypes[row.id] || '—'}
-  </span>
-</div>
+  // Override drop-off location to "TSS Camelia"
+  if (label === "Drop-off Location") {
+    value = "TSS Camelia";
+  }
 
-<div className="flex gap-2 mt-2">
-  <button
-    onClick={() => redirectToFastCourier(row)}
-    className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
-  >
-    Go to FastCourier
-  </button>
-</div>
+  return (
+    <div key={j} className="text-sm">
+      <span className="font-medium text-gray-700">{label}:</span>{" "}
+      <span className="text-gray-800">{value}</span>
+    </div>
+  );
+})}
 
-            </div>
+
+          <div className="text-sm mt-3">
+            <span className="font-medium text-gray-700">Panel Status:</span>{" "}
+            <span className="text-gray-800">{status}</span>
           </div>
-        ))}
+
+          {/* Optional: FastCourier Button */}
+          {/* <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => redirectToFastCourier(row)}
+              className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              Go to FastCourier
+            </button>
+          </div> */}
+        </div>
       </div>
+    )
+  })}
+</div>
+
     </div>
     </div>
   );
