@@ -289,23 +289,13 @@ export default function ClientTable() {
         </div>
 
         <div className="space-y-2">
-          {EXPORT_COLUMNS.map((col, j) => {
-  const label = ColTitle[j];
-  let value = row[col] || "—";
-
-  // Override drop-off location to "TSS Camelia"
-  if (label === "Drop-off Location") {
-    value = "TSS Camelia";
-  }
-
-  return (
-    <div key={j} className="text-sm">
-      <span className="font-medium text-gray-700">{label}:</span>{" "}
-      <span className="text-gray-800">{value}</span>
-    </div>
-  );
-})}
-
+          {EXPORT_COLUMNS.map((col, j) => (
+            
+            <div key={j} className="text-sm">
+              <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{" "}
+              <span className="text-gray-800">{row[col] || "—"}</span>
+            </div>
+          ))}
 
           <div className="text-sm mt-3">
             <span className="font-medium text-gray-700">Panel Status:</span>{" "}

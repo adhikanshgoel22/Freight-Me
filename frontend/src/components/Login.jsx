@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/button.tsx"
 import { Input } from "../components/ui/input.tsx"
 import { Label } from "../components/ui/Label.tsx"
@@ -12,7 +13,6 @@ import {
 import { LogIn, User, Key } from "lucide-react"
 import { useToast } from "../hooks/use-toast.ts"
 import axios from "axios"
-import Header from "./Navbar.jsx"
 
 export default function Login({ onLogin }) {
   const [email, setEmail] = useState("")
@@ -20,6 +20,12 @@ export default function Login({ onLogin }) {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
   const { toast } = useToast()
+  const navigate = useNavigate()
+
+  // Simple hash (for demonstration purposes)
+  const hashString = (str) => {
+    return btoa(str).replace(/=/g, "")
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -32,11 +38,21 @@ export default function Login({ onLogin }) {
         password,
       })
 
-      onLogin?.(res.data.user)
+      const user = res.data.user
+      localStorage.setItem("user", JSON.stringify(user))
+
+      const userHash = hashString(user.email || user.id || email)
+
+      onLogin?.(user)
+
       toast({
         title: "Login Successful",
         description: "Welcome back!",
       })
+
+      // Navigate to hashed booking route
+      navigate(`/booking/${userHash}`)
+
     } catch (err) {
       const message = err?.response?.data?.error || "Login failed"
       setError(message)
@@ -52,9 +68,7 @@ export default function Login({ onLogin }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      
       <div className="w-full max-w-md">
-        
         {/* Logo & Heading */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">

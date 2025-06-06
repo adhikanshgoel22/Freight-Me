@@ -1,20 +1,14 @@
-import { useState, useCallback, useRef } from 'react'
-import { Autocomplete, GoogleMap, Marker } from '@react-google-maps/api'
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; // only if you're using react-router
+import { useState, useCallback, useRef, useEffect } from 'react';
+import { Autocomplete, GoogleMap, Marker } from '@react-google-maps/api';
+import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import Header from './Navbar';
 
-
-// Replace with your values
-const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY
-const BOARD_ID = process.env.REACT_APP_BOARD_ID; // 🔁 Your Board ID
-const TICKET_COLUMN_ID = 'text01'; // 🔁 Column ID to search by
-const CONFIRM_COLUMN_ID = 'status'; // 🔁 Column to display upon confirmation
-
-
-const LOCATION_COLUMN_ID = 'location9'; // Pickup location column ID
-
+const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
+const BOARD_ID = process.env.REACT_APP_BOARD_ID;
+const TICKET_COLUMN_ID = 'text01';
+const CONFIRM_COLUMN_ID = 'status';
+const LOCATION_COLUMN_ID = 'location9';
 const DROP_OFF_ADDRESS = '11 Grand Ave, Camellia NSW 2142';
 
 const CITY_CENTERS = {
@@ -33,22 +27,9 @@ const mapContainerStyle = {
 
 const defaultCenter = { lat: -33.8688, lng: 151.2093 };
 
-
-
-
-
-
-
-
-export default function BookingForm() {
-  const navigate = useNavigate(); // inside the BookingForm component
-
-useEffect(() => {
-  const user = localStorage.getItem('user');
-  if (!user || user === 'undefined' || user === 'null') {
-    navigate('/login');
-  }
-}, [navigate]);
+const BookingForm = () => {
+  const navigate = useNavigate();
+  const autocompleteRef = useRef(null);
 
   const [ticketNumber, setTicketNumber] = useState('');
   const [pickup, setPickup] = useState('');
@@ -58,25 +39,41 @@ useEffect(() => {
   const [ticketData, setTicketData] = useState(null);
   const [bookingConfirmed, setBookingConfirmed] = useState(false);
   const [confirmColumnValue, setConfirmColumnValue] = useState('');
+  const [userHash, setUserHash] = useState('');
 
-  const autocompleteRef = useRef(null);
+  const user = JSON.parse(localStorage.getItem('user'));
+
+  useEffect(() => {
+    if (!user || user === 'undefined' || user === 'null') {
+      navigate('/login');
+    } else {
+      const identifier = user?.email || user?.username || 'guest';
+      (async () => {
+        const encoder = new TextEncoder();
+        const data = encoder.encode(identifier);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        setUserHash(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
+      })();
+    }
+  }, [navigate, user]);
 
   const onLoad = useCallback((autocomplete) => {
     autocompleteRef.current = autocomplete;
   }, []);
 
   const onPlaceChanged = () => {
-    if (autocompleteRef.current) {
-      const place = autocompleteRef.current.getPlace();
-      const address = place.formatted_address || place.name || '';
-      setPickup(address);
+    const place = autocompleteRef.current?.getPlace();
+    if (!place) return;
 
-      if (place.geometry?.location) {
-        setPickupCoords({
-          lat: place.geometry.location.lat(),
-          lng: place.geometry.location.lng(),
-        });
-      }
+    const address = place.formatted_address || place.name || '';
+    setPickup(address);
+
+    if (place.geometry?.location) {
+      setPickupCoords({
+        lat: place.geometry.location.lat(),
+        lng: place.geometry.location.lng(),
+      });
     }
   };
 
@@ -92,14 +89,9 @@ useEffect(() => {
         },
         (response, status) => {
           if (status !== 'OK') return reject(status);
-          try {
-            const element = response.rows[0].elements[0];
-            if (element.status === 'OK') {
-              resolve(element.distance.value / 1000);
-            } else reject(element.status);
-          } catch (err) {
-            reject(err);
-          }
+          const element = response.rows[0]?.elements?.[0];
+          if (element?.status === 'OK') resolve(element.distance.value / 1000);
+          else reject(element?.status || 'Unknown error');
         }
       );
     });
@@ -107,6 +99,7 @@ useEffect(() => {
 
   const fetchTicketData = async () => {
     try {
+      setStatus('Fetching ticket...');
       const query = `
         query {
           boards(ids: ${BOARD_ID}) {
@@ -115,7 +108,6 @@ useEffect(() => {
                 name
                 column_values {
                   id
-                  
                   text
                 }
               }
@@ -147,13 +139,12 @@ useEffect(() => {
         return;
       }
 
-      const locationCol = found.column_values.find(col => col.id === LOCATION_COLUMN_ID);
-      const confirmCol = found.column_values.find(col => col.id === CONFIRM_COLUMN_ID);
+      const location = found.column_values.find(col => col.id === LOCATION_COLUMN_ID)?.text || '';
+      const confirm = found.column_values.find(col => col.id === CONFIRM_COLUMN_ID)?.text || '';
 
-      const location = locationCol?.text || '';
       setPickup(location);
       setTicketData(found);
-      setConfirmColumnValue(confirmCol?.text || '');
+      setConfirmColumnValue(confirm);
       setStatus('Ticket found. You may now calculate the price.');
     } catch (err) {
       console.error(err);
@@ -162,19 +153,19 @@ useEffect(() => {
   };
 
   const handleCalculate = async () => {
-    setStatus('');
-    setPrice(null);
-    setBookingConfirmed(false);
-
     if (!pickup) {
       setStatus('Please enter a pickup location.');
       return;
     }
 
+    setStatus('Calculating...');
+    setPrice(null);
+
     try {
       let matchedCity = null;
+
       for (const [city, data] of Object.entries(CITY_CENTERS)) {
-        const distToCity = await getDistanceInKm(pickup, { lat: data.lat, lng: data.lng });
+        const distToCity = await getDistanceInKm(pickup, data);
         if (distToCity <= 50) {
           matchedCity = { city, ...data };
           break;
@@ -182,23 +173,20 @@ useEffect(() => {
       }
 
       if (!matchedCity) {
-        setStatus('Pickup location outside supported metro zones. Please contact us for further updates.');
-        setPrice(0); // Or null, if you want to hide price
+        setStatus('Pickup location outside supported metro zones. Contact support for pricing.');
+        setPrice(null);
         return;
       }
-      
 
       const distanceToDropOff = await getDistanceInKm(pickup, DROP_OFF_ADDRESS);
-
       setPrice(matchedCity.price);
+
       setStatus(
-        `Pickup is within ${matchedCity.city} metro zone (~${distanceToDropOff.toFixed(
-          2
-        )} km to drop-off). Price: $${matchedCity.price.toFixed(2)} per panel.`
+        `Pickup is within ${matchedCity.city} metro zone (~${distanceToDropOff.toFixed(2)} km). Price: $${matchedCity.price.toFixed(2)} per panel.`
       );
     } catch (err) {
       console.error(err);
-      setStatus('Error calculating distance.');
+      setStatus('Pricing error. Visit Contact Page for help.');
     }
   };
 
@@ -207,121 +195,116 @@ useEffect(() => {
     setStatus(`Booking confirmed for ticket ${ticketNumber}.`);
   };
 
+  const logout = () => {
+    localStorage.removeItem('user');
+    window.location.href = '/login';
+  };
+
   return (
-    
     <div>
-      <Header></Header>
+      <Header />
       <div className="max-w-2xl mx-auto p-4">
-      {/* Top Navigation Bar */}
-<div className="w-full flex justify-between items-center p-4 rounded-md mb-4">
-  {/* <h1 className="text-lg font-semibold text-gray-800">Booking Form</h1> */}
-  <div className="flex gap-2">
-    <a
-      href="/client/view"
-      className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-    >
-      View Table
-    </a>
-    <button
-      onClick={() => {
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }}
-      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-    >
-      Logout
-    </button>
-  </div>
-</div>
-
-      {/* Ticket input */}
-      <div className="mb-4">
-        <label className="block text-gray-700 font-medium mb-1">Ticket Number</label>
-        <input
-          type="text"
-          value={ticketNumber}
-          onChange={(e) => setTicketNumber(e.target.value)}
-          className="w-full border rounded-md p-2"
-        />
-        <button
-          onClick={fetchTicketData}
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          Fetch Ticket
-        </button>
-      </div>
-
-      {/* Map */}
-      <GoogleMap
-        mapContainerStyle={mapContainerStyle}
-        center={pickupCoords || defaultCenter}
-        zoom={pickupCoords ? 12 : 10}
-      >
-        {pickupCoords && <Marker position={pickupCoords} />}
-      </GoogleMap>
-
-      {/* Price display */}
-      {price !== null && (
-        <div className="text-center text-lg font-semibold text-green-700 mb-4">
-          Estimated Price: ${price.toFixed(2)} per panel
+        {/* Top Nav */}
+        <div className="w-full flex justify-between items-center p-4 rounded-md mb-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => navigate(`/table/${userHash}`)}
+              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
+              disabled={!userHash}
+            >
+              View Table
+            </button>
+            <button
+              onClick={logout}
+              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </div>
         </div>
-      )}
 
-      {/* Locations */}
-      <div className="flex flex-col sm:flex-row gap-4 mb-6">
-        <div className="flex-1">
-          <label className="block text-gray-700 mb-1">Pickup Location</label>
-          <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
-            <input
-              type="text"
-              value={pickup}
-              onChange={(e) => setPickup(e.target.value)}
-              placeholder="Pickup"
-              className="w-full p-2 border rounded-md"
-              disabled={bookingConfirmed}
-            />
-          </Autocomplete>
-        </div>
-        <div className="flex-1">
-          <label className="block text-gray-700 mb-1">Drop-off Location</label>
+        {/* Ticket Input */}
+        <div className="mb-4">
+          <label className="block text-gray-700 font-medium mb-1">Ticket Number</label>
           <input
             type="text"
-            value={DROP_OFF_ADDRESS}
-            readOnly
-            className="w-full p-2 border rounded-md bg-gray-100"
+            value={ticketNumber}
+            onChange={(e) => setTicketNumber(e.target.value)}
+            className="w-full border rounded-md p-2"
           />
+          <button
+            onClick={fetchTicketData}
+            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Fetch Ticket
+          </button>
         </div>
-      </div>
 
-      {/* Action Buttons */}
-      <button
-        onClick={handleCalculate}
-        disabled={bookingConfirmed}
-        className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700 mb-3"
-      >
-        Calculate Price
-      </button>
-
-      {!bookingConfirmed && (
-
-        <button
-          onClick={confirmBooking}
-          className="bg-green-600 text-white px-4 py-2 rounded-md w-full hover:bg-green-700"
+        {/* Google Map */}
+        <GoogleMap
+          mapContainerStyle={mapContainerStyle}
+          center={pickupCoords || defaultCenter}
+          zoom={pickupCoords ? 12 : 10}
         >
-          Confirm Booking
-        </button>
-      )}
+          {pickupCoords && <Marker position={pickupCoords} />}
+        </GoogleMap>
 
-      {status && <p className="mt-4 text-sm text-center text-blue-700">{status}</p>}
-
-      {bookingConfirmed && confirmColumnValue && (
-        <div className="mt-4 p-4 bg-gray-100 rounded-md text-center">
-          {/* <p className="font-semibold text-blue-800">Booking Status:</p> */}
-          {/* <p className="text-gray-800">{confirmColumnValue}</p> */}
+        {/* Locations */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+          <div className="flex-1">
+            <label className="block text-gray-700 mb-1">Pickup Location</label>
+            <Autocomplete onLoad={onLoad} onPlaceChanged={onPlaceChanged}>
+              <input
+                type="text"
+                value={pickup}
+                onChange={(e) => setPickup(e.target.value)}
+                placeholder="Pickup"
+                className="w-full p-2 border rounded-md"
+                disabled={bookingConfirmed}
+              />
+            </Autocomplete>
+          </div>
+          <div className="flex-1">
+            <label className="block text-gray-700 mb-1">Drop-off Location</label>
+            <input
+              type="text"
+              value={DROP_OFF_ADDRESS}
+              readOnly
+              className="w-full p-2 border rounded-md bg-gray-100"
+            />
+          </div>
         </div>
-      )}
-      
-    </div>
+
+        {/* Price */}
+        {price !== null && (
+          <div className="text-center text-lg font-semibold text-green-700 mb-4">
+            Estimated Price: ${price.toFixed(2)} per panel
+          </div>
+        )}
+
+        {/* Buttons */}
+        <button
+          onClick={handleCalculate}
+          disabled={bookingConfirmed}
+          className="bg-blue-600 text-white px-4 py-2 rounded-md w-full hover:bg-blue-700 mb-3"
+        >
+          Calculate Price
+        </button>
+
+        {!bookingConfirmed && (
+          <button
+            onClick={confirmBooking}
+            className="bg-green-600 text-white px-4 py-2 rounded-md w-full hover:bg-green-700"
+          >
+            Confirm Booking
+          </button>
+        )}
+
+        {/* Status */}
+        {status && <p className="mt-4 text-sm text-center text-blue-700">{status}</p>}
+      </div>
     </div>
   );
-}
+};
+
+export default BookingForm;
