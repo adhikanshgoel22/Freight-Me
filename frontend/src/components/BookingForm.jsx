@@ -195,10 +195,16 @@ const BookingForm = () => {
     setStatus(`Booking confirmed for ticket ${ticketNumber}.`);
   };
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  };
+  // import { useNavigate } from 'react-router-dom';
+
+// inside your component
+// const navigate = useNavigate();
+
+const handleLogout = () => {
+  localStorage.removeItem('user');
+  navigate('/login', { replace: true });
+};
+
 
   return (
     <div>
@@ -215,7 +221,7 @@ const BookingForm = () => {
               View Table
             </button>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
             >
               Logout

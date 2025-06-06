@@ -25,7 +25,7 @@ export default function App() {
         <Route path="/server" element={<ServerLogin />} />
         <Route path="/tit" element={<TicketTable />} />
         <Route path="/ti" element={<TableWithDownload />} />
-        <Route path="/server/view" element={<MondayTableWithExport />} />
+        {/* <Route path="/server/view" element={<MondayTableWithExport />} /> */}
         <Route path="/view2" element={<MondayBoardViewer />} />
         {/* <Route path="/client/view" element={<ClientTable />} /> */}
         <Route path="/contact" element={<Contact />} />
@@ -33,6 +33,8 @@ export default function App() {
         {/* ✅ New route for booking with encoded user */}
         <Route path="/booking/:userHash" element={<BookingForm />} />
         <Route path="/table/:userHash" element={<ClientTable />} />
+        <Route path="/server/:usernameHash" element={<MondayTableWithExport />} />
+
 
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" />} />

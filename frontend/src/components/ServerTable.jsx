@@ -3,6 +3,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
+import { useNavigate } from "react-router-dom";
 
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
@@ -13,7 +14,7 @@ const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered'
 const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
 export default function MondayTableWithExport() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
-
+ const navigate=useNavigate();
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -159,6 +160,10 @@ export default function MondayTableWithExport() {
     const fileName = row.Name ? `item-${row.Name}.pdf` : 'item.pdf';
     doc.save(fileName);
   };
+const handleLogout = () => {
+  localStorage.removeItem('user');
+  navigate('/login', { replace: true });
+};
 
   const redirectToFastCourier = (row) => {
     if (!row['location9'] || !row['long_text2']) {
@@ -201,7 +206,7 @@ export default function MondayTableWithExport() {
 });
 
 
-  if (loading) return <p className="p-6 text-gray-600">Loading Monday.com data...</p>;
+  if (loading) return <p className="p-6 text-gray-600">Loading CommBox data...</p>;
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
@@ -215,10 +220,7 @@ export default function MondayTableWithExport() {
   {/* Left side buttons */}
   <div className="flex gap-3">
     <button
-      onClick={() => {
-        localStorage.removeItem('user');
-        window.location.href = '/';
-      }}
+      onClick={handleLogout}
       className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
     >
       Logout

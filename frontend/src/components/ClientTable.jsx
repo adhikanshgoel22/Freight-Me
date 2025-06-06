@@ -3,6 +3,7 @@ import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
+import { useNavigate } from "react-router-dom";
 
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
@@ -20,6 +21,7 @@ export default function ClientTable() {
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [deliveryTypes, setDeliveryTypes] = useState({});
+  const navigate=useNavigate();
 
   const handleDeliveryTypeChange = (rowId, newType) => {
     setDeliveryTypes((prev) => ({
@@ -120,6 +122,10 @@ export default function ClientTable() {
       setLoading(false);
     }
   };
+  const handleLogout = () => {
+  localStorage.removeItem('user');
+  navigate('/login', { replace: true });
+};
 
   useEffect(() => {
     fetchMondayData();
@@ -215,10 +221,7 @@ export default function ClientTable() {
   {/* Left side buttons */}
   <div className="flex gap-3">
     <button
-      onClick={() => {
-        localStorage.removeItem('user');
-        window.location.href = '/';
-      }}
+      onClick={handleLogout}
       className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
     >
       Logout
