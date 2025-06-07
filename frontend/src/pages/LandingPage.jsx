@@ -22,16 +22,15 @@ const LandingPage = () => {
       </div>
 
       {/* Desktop Nav */}
-      <div className="hidden md:flex items-center space-x-8">
+      <div className="hidden md:flex items-center space-x-20">
+        <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">About</a>
         <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
         <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
         <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
         <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
           <a href="/login">Sign In</a>
         </Button>
-        <Button className="bg-blue-600 hover:bg-blue-700">
-          Get Started
-        </Button>
+        
       </div>
 
       {/* Hamburger Icon */}
@@ -47,11 +46,13 @@ const LandingPage = () => {
   {open && (
     <div className="md:hidden px-4 pb-4">
       <div className="flex flex-col space-y-4 mt-4">
+        
+        <a href="/about" className="text-gray-700 hover:text-blue-600">About Us</a>
         <a href="#features" className="text-gray-700 hover:text-blue-600">Features</a>
         <a href="/contact" className="text-gray-700 hover:text-blue-600">Pricing</a>
         <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a>
         <a href="/login" className="text-gray-700 hover:text-blue-600 border rounded px-4 py-2 border-blue-200">Sign In</a>
-        <Button className="bg-blue-600 hover:bg-blue-700 w-full">Get Started</Button>
+        
       </div>
     </div>
   )}
@@ -71,16 +72,15 @@ const LandingPage = () => {
                 Streamline operations, track deliveries in real-time, and grow..
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
+                <a href="/login">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8 py-4">
-                  Transport Now
+                  Sign in to Transport!
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
+                </a>
                 
               </div>
-              <div className="flex items-center mt-8 text-sm text-gray-500">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                <span>No credit card required • 14-day free trial • Cancel anytime</span>
-              </div>
+              
             </div>
             <div className="relative animate-fade-in">
               <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 shadow-2xl">
@@ -195,7 +195,7 @@ const LandingPage = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-blue-600">
+      <section className="py-20 bg-blue-600 mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
             <div className="text-white">
@@ -219,7 +219,7 @@ const LandingPage = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 bg-gray-50">
+      {/* <section className="py-20 bg-gray-50">
         <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-gray-900 mb-6">
             Ready to Transform Your Delivery Business?
@@ -235,7 +235,7 @@ const LandingPage = () => {
             
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-16">
@@ -253,7 +253,7 @@ const LandingPage = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
                 <li><a href="/contact" className="hover:text-white transition-colors">Pricing</a></li>
                 
               </ul>
@@ -261,21 +261,13 @@ const LandingPage = () => {
             <div>
               <h3 className="text-lg font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">About</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="/about" className="hover:text-white transition-colors">About</a></li>
+                
+                {/* <li><a href="/contact" className="hover:text-white transition-colors">Careers</a></li> */}
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
               </ul>
             </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li><a href="#" className="hover:text-white transition-colors">Help Center</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Status</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
-              </ul>
-            </div>
+            
           </div>
           <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
             <p>&copy; InstallMe. All rights reserved.</p>

@@ -14,6 +14,7 @@ import Contact from './pages/Contact';
 import BookingForm from './components/BookingForm'; // ✅ Import this
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute"; // if used
+import About from './pages/About';
 
 export default function App() {
   return (
@@ -29,7 +30,7 @@ export default function App() {
         <Route path="/view2" element={<MondayBoardViewer />} />
         {/* <Route path="/client/view" element={<ClientTable />} /> */}
         <Route path="/contact" element={<Contact />} />
-
+        <Route path="/about" element={<About />} />
         {/* ✅ New route for booking with encoded user */}
         <Route path="/booking/:userHash" element={<BookingForm />} />
         <Route path="/table/:userHash" element={<ClientTable />} />
