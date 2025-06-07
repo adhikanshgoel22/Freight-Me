@@ -21,6 +21,8 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState(null)
   const { toast } = useToast()
   const navigate = useNavigate()
+  
+
 
   // Simple hash (for demonstration purposes)
   const hashString = (str) => {
@@ -127,9 +129,7 @@ export default function Login({ onLogin }) {
                   <input type="checkbox" className="rounded" />
                   <span className="text-gray-600">Remember me</span>
                 </label>
-                <a href="#" className="text-blue-600 hover:underline">
-                  Forgot password?
-                </a>
+                
               </div>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
@@ -139,14 +139,7 @@ export default function Login({ onLogin }) {
               </Button>
             </form>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Don’t have an account?{" "}
-                <a href="#" className="text-blue-600 hover:underline font-medium">
-                  Sign up
-                </a>
-              </p>
-            </div>
+           
           </CardContent>
         </Card>
       </div>

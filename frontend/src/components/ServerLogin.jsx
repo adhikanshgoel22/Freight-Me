@@ -19,37 +19,33 @@ export default function ServerLogin({ onLogin }) {
   const [loading, setLoading] = useState(false)
 
   const navigate = useNavigate()
-const handleSubmit = async (e) => {
-  e.preventDefault()
-  setError(null)
-  setLoading(true)
 
-  try {
-    const res = await axios.post('https://freight-me-1.onrender.com/server-login', {
-      username,
-      password,
-    });
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setError(null)
+    setLoading(true)
 
-    if (res.data.user) {
-      localStorage.setItem('server_auth', 'true');
-      onLogin?.(res.data.user);
+    try {
+      const res = await axios.post('https://freight-me-1.onrender.com/server-login', {
+        username,
+        password,
+      })
 
-      // ✅ Hash the username using SHA-256
-      const hashedUsername = await getHashedString(username);
-      
-      // Redirect to /server/{hashedUsername}
-      navigate(`/server/${hashedUsername}`);
-    } else {
-      setError('Invalid username or password');
+      // Your backend sends back { user } on success
+      if (res.data.user) {
+        localStorage.setItem('server_auth', 'true')
+        onLogin?.(res.data.user)
+        navigate("/server/view")
+      } else {
+        setError('Invalid username or password')
+      }
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err?.response?.data?.error || 'Login failed')
+    } finally {
+      setLoading(false)
     }
-  } catch (err) {
-    console.error('Login error:', err);
-    setError(err?.response?.data?.error || 'Login failed');
-  } finally {
-    setLoading(false);
   }
-};
-
 
   return (
     <div className="flex h-screen items-center justify-center bg-blue-50">

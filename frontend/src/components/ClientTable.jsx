@@ -87,7 +87,7 @@ export default function ClientTable() {
 
       const mondayItems = mondayRes.data.data.boards[0]?.items_page?.items || [];
 
-      const supabaseRes = await axios.get('http://localhost:5000/tickets');
+      const supabaseRes = await axios.get('https://freight-me-1.onrender.com/tickets');
       const ticketMap = {};
       supabaseRes.data.tickets.forEach((t) => {
         ticketMap[t.text01] = t.delivery_type;
