@@ -3,6 +3,8 @@ import { ArrowRight, Truck, MapPin, Clock, Package, Briefcase, CheckCircle } fro
 import { Button } from '../components/ui/button.tsx'  // adjust relative path as needed
 import { useState } from "react";
 import { Menu, X} from "lucide-react";
+import logo from './logo.jpg';
+import main from './Main2.png'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/Card.tsx";
 
@@ -14,18 +16,18 @@ const LandingPage = () => {
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex justify-between items-center h-16">
+    <div className="flex justify-between items-center h-17">
       {/* Logo */}
       <div className="flex items-center space-x-2">
-        <Truck className="h-8 w-8 text-blue-600" />
-        <span className="text-xl font-bold text-gray-900">InstallMe</span>
+        <div  className="h-10 w-12 text-blue-600"><img src={logo} alt=""  className="h-15 w-12 text-blue-600"/></div>
+        <span className="text-xl font-bold text-gray-900">FreightMe</span>
       </div>
 
       {/* Desktop Nav */}
       <div className="hidden md:flex items-center space-x-20">
-        <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">About</a>
+        {/* <a href="/about" className="text-gray-600 hover:text-blue-600 transition-colors">About</a> */}
         <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>
-        <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a>
+        {/* <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Pricing</a> */}
         <a href="/contact" className="text-gray-600 hover:text-blue-600 transition-colors">Contact</a>
         <Button variant="outline" className="border-blue-200 text-blue-600 hover:bg-blue-50">
           <a href="/login">Sign In</a>
@@ -47,9 +49,9 @@ const LandingPage = () => {
     <div className="md:hidden px-4 pb-4">
       <div className="flex flex-col space-y-4 mt-4">
         
-        <a href="/about" className="text-gray-700 hover:text-blue-600">About Us</a>
+        {/* <a href="/about" className="text-gray-700 hover:text-blue-600">About Us</a> */}
         <a href="#features" className="text-gray-700 hover:text-blue-600">Features</a>
-        <a href="/contact" className="text-gray-700 hover:text-blue-600">Pricing</a>
+        {/* <a href="/contact" className="text-gray-700 hover:text-blue-600">Pricing</a> */}
         <a href="/contact" className="text-gray-700 hover:text-blue-600">Contact</a>
         <a href="/login" className="text-gray-700 hover:text-blue-600 border rounded px-4 py-2 border-blue-200">Sign In</a>
         
@@ -85,13 +87,13 @@ const LandingPage = () => {
             <div className="relative animate-fade-in">
               <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=800&q=80" 
+                  src={main}
                   alt="Dashboard Preview" 
                   className="rounded-lg shadow-lg w-full"
                 />
               </div>
-              <div className="absolute -bottom-6 -left-6 bg-white rounded-lg shadow-lg p-4 border border-gray-100">
-                <div className="flex items-center space-x-3">
+              {/* <div className="absolute -bottom-6 -left-6 bg-white rounded-lg shadow-lg p-4 border border-gray-100">
+                {/* <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
                     <Package className="h-6 w-6 text-green-600" />
                   </div>
@@ -99,8 +101,8 @@ const LandingPage = () => {
                     <p className="font-semibold text-gray-900">1,247 Deliveries</p>
                     <p className="text-sm text-gray-500">Completed today</p>
                   </div>
-                </div>
-              </div>
+                </div> }
+              </div> */}
             </div>
           </div>
         </div>
@@ -194,7 +196,7 @@ const LandingPage = () => {
         </div>
       </section>
 
-      {/* Stats Section */}
+      {/* Stats Section
       <section className="py-20 bg-blue-600 mb-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-8 text-center">
@@ -216,7 +218,7 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       {/* CTA Section */}
       {/* <section className="py-20 bg-gray-50">
@@ -243,7 +245,7 @@ const LandingPage = () => {
           <div className="grid md:grid-cols-3 gap-15 sm:grid-rows-1">
             <div>
               <div className="flex items-center space-x-2 mb-4">
-                <Truck className="h-8 w-8 text-blue-400" />
+                <img src={logo} alt="" className="h-15 w-12"/>
                 <span className="text-xl font-bold">FreightMe</span>
               </div>
               <p className="text-gray-400">
@@ -254,14 +256,14 @@ const LandingPage = () => {
               <h3 className="text-lg font-semibold mb-4">Product</h3>
               <ul className="space-y-2 text-gray-400">
                 <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                <li><a href="/contact" className="hover:text-white transition-colors">Pricing</a></li>
+                {/* <li><a href="/contact" className="hover:text-white transition-colors">Pricing</a></li> */}
                 
               </ul>
             </div>
             <div>
               <h3 className="text-lg font-semibold mb-4">Company</h3>
               <ul className="space-y-2 text-gray-400">
-                <li><a href="/about" className="hover:text-white transition-colors">About</a></li>
+                {/* <li><a href="/about" className="hover:text-white transition-colors">About</a></li> */}
                 
                 {/* <li><a href="/contact" className="hover:text-white transition-colors">Careers</a></li> */}
                 <li><a href="/contact" className="hover:text-white transition-colors">Contact</a></li>
@@ -270,7 +272,7 @@ const LandingPage = () => {
             
           </div>
           <div className="border-t border-gray-800 mt-6 pt-4 text-center text-gray-400">
-            <p>&copy; Freight-Me. All rights reserved.</p>
+            <p>&copy; FreightMe. All rights reserved.</p>
           </div>
         </div>
       </footer>

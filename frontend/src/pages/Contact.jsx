@@ -1,4 +1,4 @@
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, FolderPen } from "lucide-react";
 import { Button } from "../components/ui/button.tsx";
 
 const Contact = () => {
@@ -23,16 +23,16 @@ const Contact = () => {
             </div>
             <div className="space-y-4">
               <div className="flex items-center space-x-4">
-                <Mail className="text-blue-600 w-6 h-6" />
-                <span>Rohan Kumar</span>
+                <FolderPen className="text-blue-600 w-6 h-6" />
+                <span>InstallMe</span>
               </div>
               <div className="flex items-center space-x-4">
-                <Phone className="text-blue-600 w-6 h-6" />
-                <span>+61 438 630 573</span>
+                <Mail className="text-blue-600 w-6 h-6" />
+                <span>projects@installme.com.au</span>
               </div>
               <div className="flex items-center space-x-4">
                 <MapPin className="text-blue-600 w-6 h-6" />
-                <span>Melbourne</span>
+                <span>Brisbane</span>
               </div>
             </div>
           </div>

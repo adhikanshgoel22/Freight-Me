@@ -8,10 +8,11 @@ import { useNavigate } from "react-router-dom";
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
-const EXPORT_COLUMNS = ['text01', 'text03', 'location9', 'long_text2'];
+const EXPORT_COLUMNS = ['group_title', 'dropdown_mkrmqfte', 'text_mkrmbn8h', 'numeric_mkrmh92c','text_mkrma2f0','text_mkrmfhjz','date_mkrmrazc','status'];
+
 const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
 
-const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
+const ColTitle=['Group','SKU','Serial','Qty','Issues','Reference','ETA','Status'];
 export default function MondayTableWithExport() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
  const navigate=useNavigate();
@@ -219,12 +220,12 @@ const handleLogout = () => {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
   {/* Left side buttons */}
   <div className="flex gap-3">
-    <button
+    {/* <button
       onClick={handleLogout}
       className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
     >
       Logout
-    </button>
+    </button> */}
 
     <button
       onClick={() => setShowReplaceOnly((prev) => !prev)}
@@ -257,66 +258,73 @@ const handleLogout = () => {
 </div>
 
 
+     
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredData.map((row) => (
-          <div
-            key={row.id}
-            className="border rounded-lg shadow p-4 bg-gray-50 hover:shadow-md transition"
+  {filteredData.map((row) => {
+    const status = (row['status'] || 'Unknown').trim().toLowerCase();
+
+    console.log("Row ID:", row.id, "Delivery Type:", deliveryTypes[row.id]);
+
+    
+
+   const statusColorMap = {
+  'delivered': 'bg-green-100',
+  'panel in transit': 'bg-blue-100',
+  'pending pickup': 'bg-red-100',
+  'unknown': 'bg-yellow-100', // fallback
+};
+const statusColor = statusColorMap[status] || 'bg-yellow-100';
+
+
+
+    const DropOff="TSS Camelia"
+
+    return (
+      <div
+        key={row.id}
+        className={`border rounded-lg shadow p-4 hover:shadow-md transition ${statusColor}`}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <h3 className="text-lg font-semibold text-blue-700">
+            {row.Name || "Untitled"}
+          </h3>
+          {/* PDF download button (optional) */}
+          <button
+            onClick={() => downloadRowAsPDF(row)}
+            className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            <div className="flex justify-between items-center mb-2">
-              <h3 className="text-lg font-semibold text-blue-700">
-                {row.Name || 'Untitled'}
-              </h3>
-              <button
-                onClick={() => downloadRowAsPDF(row)}
-                className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                PDF
-              </button>
+            PDF
+          </button>
+        </div>
+
+        <div className="space-y-2">
+          {EXPORT_COLUMNS.map((col, j) => (
+            
+            <div key={j} className="text-sm">
+              <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{" "}
+              <span className="text-gray-800">{row[col] || "—"}</span>
             </div>
+          ))}
 
-            <div className="space-y-2">
-               {EXPORT_COLUMNS.map((col, j) => (
-  <div key={j} className="text-sm">
-    <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
-    <span className="text-gray-800">{row[col] || '—'}</span>
-  </div>
-))}
+          {/* <div className="text-sm mt-3">
+            <span className="font-medium text-gray-700">Panel Status:</span>{" "}
+            <span className="text-gray-800">{status}</span>
+          </div> */}
 
-              <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700">PANEL STATUS</label>
-                <select
-                  value={deliveryTypes[row.id] || ''}
-                  onChange={(e) => handleDeliveryTypeChange(row.id, e.target.value)}
-                  className="mt-1 w-full px-3 py-1 border rounded-md shadow-sm"
-                >
-                  <option value="">Select Status</option>
-                  {DELIVERY_TYPES.map((type) => (
-                    <option key={type} value={type}>
-                      {type}
-                    </option>
-                  ))}
-                </select>
-
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => updateDeliveryType(row.id)}
-                    className="px-3 py-1 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => redirectToFastCourier(row)}
-                    className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
-                  >
-                    Go to FastCourier
-                  </button>
-                </div>
-              </div>
-            </div>
+          {/* Optional: FastCourier Button */}
+          <div className="flex gap-2 mt-2">
+            <button
+              onClick={() => redirectToFastCourier(row)}
+              className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
+            >
+              Go to FastCourier
+            </button>
           </div>
-        ))}
+        </div>
       </div>
+    )
+  })}
+</div>
     </div>
     </div>
   );

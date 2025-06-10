@@ -20,7 +20,7 @@ export const CardHeader = ({
   className,
   ...props
 }: React.HTMLAttributes<HTMLDivElement>) => (
-  <div className={cn("p-6 pb-0", className)} {...props} />
+  <div className={cn("p-6 pb-6", className)} {...props} />
 );
 CardHeader.displayName = "CardHeader";
 

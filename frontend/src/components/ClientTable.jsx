@@ -8,10 +8,10 @@ import { useNavigate } from "react-router-dom";
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
-const EXPORT_COLUMNS = ['text01', 'text03', 'location9', 'long_text2'];
-const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
+const EXPORT_COLUMNS = ['group_title', 'dropdown_mkrmqfte', 'text_mkrmbn8h', 'numeric_mkrmh92c','text_mkrma2f0','text_mkrmfhjz','date_mkrmrazc','status'];
 
-const ColTitle=['Ticket Number','SKQ','Drop-off Location','PickUp Location'];
+
+const ColTitle=['Group','SKU','Serial','Qty','Issues','Reference','ETA','Status'];
 export default function ClientTable() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
 
@@ -38,7 +38,7 @@ export default function ClientTable() {
         return;
       }
 
-      const ticketRef = data.find(d => d.id === rowId)?.text01 || '';
+      const ticketRef = data.find(d => d.id === rowId)?.group_title|| '';
       const res = await axios.post(`https://freight-me-1.onrender.com/ticket`, {
         text01: ticketRef,
         delivery_type: selectedType,
@@ -220,19 +220,19 @@ export default function ClientTable() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
   {/* Left side buttons */}
   <div className="flex gap-3">
-    <button
+    {/* <button
       onClick={handleLogout}
       className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
     >
       Logout
-    </button>
+    </button> */}
 
-    <button
+    {/* <button
       onClick={() => setShowReplaceOnly((prev) => !prev)}
       className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
     >
       {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
-    </button>
+    </button> */}
   </div>
 
   {/* Center search bar */}
@@ -261,15 +261,21 @@ export default function ClientTable() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
   {filteredData.map((row) => {
-    const status = deliveryTypes[row.id] || "Unknown"
+    const status = (row['status'] || 'Unknown').trim().toLowerCase();
 
-    const statusColor = {
-      "Panel Delivered": "bg-green-100",
-      "Panel in Transit": "bg-yellow-100",
-      "Panel with Tech": "bg-red-100",
-      
-      Unknown: "bg-gray-100",
-    }[status] || "bg-gray-100"
+    console.log("Row ID:", row.id, "Delivery Type:", deliveryTypes[row.id]);
+
+    
+
+   const statusColorMap = {
+  'delivered': 'bg-green-100',
+  'panel in transit': 'bg-blue-100',
+  'pending pickup': 'bg-red-100',
+  'unknown': 'bg-yellow-100', // fallback
+};
+const statusColor = statusColorMap[status] || 'bg-yellow-100';
+
+
 
     const DropOff="TSS Camelia"
 
@@ -300,10 +306,10 @@ export default function ClientTable() {
             </div>
           ))}
 
-          <div className="text-sm mt-3">
+          {/* <div className="text-sm mt-3">
             <span className="font-medium text-gray-700">Panel Status:</span>{" "}
             <span className="text-gray-800">{status}</span>
-          </div>
+          </div> */}
 
           {/* Optional: FastCourier Button */}
           {/* <div className="flex gap-2 mt-2">
