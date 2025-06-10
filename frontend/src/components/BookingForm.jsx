@@ -6,7 +6,7 @@ import Header from './Navbar';
 
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
-const TICKET_COLUMN_ID = 'text01';
+const TICKET_COLUMN_ID = 'text_mkrmbn8h';
 const CONFIRM_COLUMN_ID = 'status';
 const LOCATION_COLUMN_ID = 'location9';
 const DROP_OFF_ADDRESS = '11 Grand Ave, Camellia NSW 2142';
