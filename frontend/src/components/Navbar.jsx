@@ -11,7 +11,7 @@ const Header=()=>{
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <Truck className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900"><a href="/">InstallMe</a></span>
+              <span className="text-xl font-bold text-gray-900"><a href="/">FreightMe</a></span>
             </div>
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-600 hover:text-blue-600 transition-colors">Features</a>

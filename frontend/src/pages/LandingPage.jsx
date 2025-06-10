@@ -244,7 +244,7 @@ const LandingPage = () => {
             <div>
               <div className="flex items-center space-x-2 mb-4">
                 <Truck className="h-8 w-8 text-blue-400" />
-                <span className="text-xl font-bold">InstallMe</span>
+                <span className="text-xl font-bold">FreightMe</span>
               </div>
               <p className="text-gray-400">
                Get started with delivery today!
@@ -270,7 +270,7 @@ const LandingPage = () => {
             
           </div>
           <div className="border-t border-gray-800 mt-6 pt-4 text-center text-gray-400">
-            <p>&copy; InstallMe. All rights reserved.</p>
+            <p>&copy; Freight-Me. All rights reserved.</p>
           </div>
         </div>
       </footer>
