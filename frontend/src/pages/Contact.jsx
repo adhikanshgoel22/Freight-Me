@@ -1,7 +1,33 @@
-import { Mail, Phone, MapPin, FolderPen } from "lucide-react";
+import { Mail, MapPin, FolderPen } from "lucide-react";
 import { Button } from "../components/ui/button.tsx";
+import { useState } from "react";
+import axios from "axios";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setStatus("");
+
+    try {
+      const response = await axios.post("https://freight-me-1.onrender.com/submit-query", formData); // replace with your backend URL
+      setStatus("Query submitted successfully!");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (error) {
+      setStatus(error.response?.data?.error || "Submission failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white text-gray-900">
       {/* Header Section */}
@@ -38,12 +64,19 @@ const Contact = () => {
           </div>
 
           {/* Contact Form */}
-          <form className="bg-blue-50 p-8 rounded-xl shadow-md space-y-6">
+          <form
+            onSubmit={handleSubmit}
+            className="bg-blue-50 p-8 rounded-xl shadow-md space-y-6"
+          >
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
               <input
                 type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
                 placeholder="Your name"
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
@@ -51,21 +84,40 @@ const Contact = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
               <input
                 type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
                 placeholder="you@example.com"
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 rows={4}
                 placeholder="Tell us what you need..."
+                required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
-            <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-              Send Message
+
+            <Button
+              type="submit"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+              disabled={loading}
+            >
+              {loading ? "Sending..." : "Send Message"}
             </Button>
+
+            {status && (
+              <p className={`text-sm ${status.includes("successfully") ? "text-green-600" : "text-red-600"}`}>
+                {status}
+              </p>
+            )}
           </form>
         </div>
       </section>

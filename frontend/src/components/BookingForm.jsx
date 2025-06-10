@@ -208,7 +208,7 @@ const handleLogout = () => {
 
   return (
     <div>
-      <Header />
+      {/* <Header /> */}
       <div className="max-w-2xl mx-auto p-4">
         {/* Top Nav */}
         <div className="w-full flex justify-between items-center p-4 rounded-md mb-4">
@@ -220,12 +220,12 @@ const handleLogout = () => {
             >
               View Table
             </button>
-            <button
+            {/* <button
               onClick={handleLogout}
               className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
             >
               Logout
-            </button>
+            </button> */}
           </div>
         </div>
 

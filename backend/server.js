@@ -61,7 +61,25 @@ app.post('/server-register', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' })
   }
 })
+app.post("/submit-query", async (req, res) => {
+  const { name, email, message } = req.body;
 
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: "All fields are required." });
+  }
+
+  try {
+    const { data, error } = await supabase.from("queries").insert([{ name, email, message }]);
+
+    if (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
+    res.status(200).json({ message: "Query submitted successfully.", data });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
 // ✅ LOGIN Endpoint (From Supabase Table)
 app.post('/login', async (req, res) => {
   const { email, password } = req.body

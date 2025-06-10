@@ -21,7 +21,8 @@ export default function Login({ onLogin }) {
   const [error, setError] = useState(null)
   const { toast } = useToast()
   const navigate = useNavigate()
-  
+  const [rememberMe, setRememberMe] = useState(false)
+
 
 
   // Simple hash (for demonstration purposes)
@@ -41,7 +42,12 @@ export default function Login({ onLogin }) {
       })
 
       const user = res.data.user
-      localStorage.setItem("user", JSON.stringify(user))
+      if (rememberMe) {
+  localStorage.setItem("user", JSON.stringify(user))
+} else {
+  sessionStorage.setItem("user", JSON.stringify(user))
+}
+
 
       const userHash = hashString(user.email || user.id || email)
 
@@ -126,9 +132,15 @@ export default function Login({ onLogin }) {
 
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center space-x-2">
-                  <input type="checkbox" className="rounded" />
-                  <span className="text-gray-600">Remember me</span>
-                </label>
+  <input
+    type="checkbox"
+    className="rounded"
+    checked={rememberMe}
+    onChange={() => setRememberMe(!rememberMe)}
+  />
+  <span className="text-gray-600">Remember me</span>
+</label>
+
                 
               </div>
 
