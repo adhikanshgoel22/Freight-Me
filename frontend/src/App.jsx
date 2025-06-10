@@ -15,6 +15,7 @@ import BookingForm from './components/BookingForm'; // ✅ Import this
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute"; // if used
 import About from './pages/About';
+import Query from './pages/Query';
 
 export default function App() {
   return (
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/booking/:userHash" element={<BookingForm />} />
         <Route path="/table/:userHash" element={<ClientTable />} />
         <Route path="/server/:usernameHash" element={<MondayTableWithExport />} />
+        <Route path="/queries" element={<Query />} />
 
 
         {/* Catch-all fallback */}
