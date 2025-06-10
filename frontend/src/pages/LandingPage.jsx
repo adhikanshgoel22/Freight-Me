@@ -4,7 +4,7 @@ import { Button } from '../components/ui/button.tsx'  // adjust relative path as
 import { useState } from "react";
 import { Menu, X} from "lucide-react";
 import logo from './logo.jpg';
-import main from './Main2.png'
+import main from './mainn.png'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../components/ui/Card.tsx";
 
@@ -16,10 +16,10 @@ const LandingPage = () => {
       {/* Navigation */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-blue-100 sticky top-0 z-50">
   <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div className="flex justify-between items-center h-17">
+    <div className="flex justify-between items-center h-16">
       {/* Logo */}
       <div className="flex items-center space-x-2">
-        <div  className="h-10 w-12 text-blue-600"><img src={logo} alt=""  className="h-15 w-12 text-blue-600"/></div>
+        <img src={logo} alt=""  className="h-15 w-20 text-blue-600"/>
         <span className="text-xl font-bold text-gray-900">FreightMe</span>
       </div>
 
@@ -85,7 +85,7 @@ const LandingPage = () => {
               
             </div>
             <div className="relative animate-fade-in">
-              <div className="bg-gradient-to-r from-blue-600 to-blue-800 rounded-2xl p-8 shadow-2xl">
+              <div >
                 <img 
                   src={main}
                   alt="Dashboard Preview" 
@@ -116,12 +116,12 @@ const LandingPage = () => {
               Everything You Need to Scale
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              From route optimization to customer notifications, our platform provides all the tools your courier business needs to thrive.
+              From route optimisation to customer notifications, our platform provides all the tools your courier business needs to thrive.
             </p>
           </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
+            {/* <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
               <CardHeader>
                 <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
                   <MapPin className="h-6 w-6 text-blue-600" />
@@ -131,16 +131,16 @@ const LandingPage = () => {
                   Track every delivery in real-time with GPS monitoring and live updates for customers.
                 </CardDescription>
               </CardHeader>
-            </Card>
+            </Card> */}
 
             <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
               <CardHeader>
                 <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                   <Clock className="h-6 w-6 text-green-600" />
                 </div>
-                <CardTitle className="text-xl">Route Optimization</CardTitle>
+                <CardTitle className="text-xl">Route Optimisation</CardTitle>
                 <CardDescription>
-                  Automatically optimize delivery routes to save time, fuel costs, and increase efficiency.
+                  Automatically optimise delivery routes to save time, fuel costs, and increase efficiency.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -169,7 +169,7 @@ const LandingPage = () => {
               </CardHeader>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
+            {/* <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
               <CardHeader>
                 <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                   <Truck className="h-6 w-6 text-red-600" />
@@ -179,9 +179,9 @@ const LandingPage = () => {
                   Monitor vehicle performance, maintenance schedules, and driver assignments efficiently.
                 </CardDescription>
               </CardHeader>
-            </Card>
+            </Card> */}
 
-            <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
+            {/* <Card className="hover:shadow-lg transition-shadow duration-300 border-gray-100">
               <CardHeader>
                 <div className="w-12 h-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
                   <CheckCircle className="h-6 w-6 text-indigo-600" />
@@ -191,7 +191,7 @@ const LandingPage = () => {
                   Get detailed insights into your operations with comprehensive analytics and reporting tools.
                 </CardDescription>
               </CardHeader>
-            </Card>
+            </Card> */}
           </div>
         </div>
       </section>
