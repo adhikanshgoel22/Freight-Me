@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import logoImg from '../pages/logo.jpg'; // <-- You must have a small logo file (base64 or path)
+import logoImg from '../pages/logo.jpg'; // <-- Small logo file path or base64
 
 const EXPORT_COLUMNS = [
   'group_title',
@@ -27,11 +27,9 @@ const ColTitle = [
 export function generateCustomPDF(row) {
   const doc = new jsPDF();
 
-  // Add Logo
-  const logoWidth = 40;
-  const logoHeight = 15;
+  // Logo
   try {
-    doc.addImage(logoImg, 'PNG', 150, 10, logoWidth, logoHeight);
+    doc.addImage(logoImg, 'PNG', 150, 10, 60, 35);
   } catch (e) {
     console.warn("Logo couldn't be added:", e.message);
   }
@@ -52,15 +50,21 @@ export function generateCustomPDF(row) {
   doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 42);
   doc.text(`Panel ID: ${row.Name || 'Untitled'}`, 14, 48);
 
-  // Build table data
+  // Table Data
   const tableData = EXPORT_COLUMNS.map((col, i) => [
     ColTitle[i],
     row[col] || '—',
   ]);
 
-  // Render table and capture finalY
-  const result = autoTable(doc, {
-    startY: 60,
+  // Estimate height after table (Y position = startY + rowCount * rowHeight + some margin)
+  const tableStartY = 60;
+  const rowHeight = 8;
+  const rowCount = tableData.length + 1; // +1 for header row
+  const estimatedTableEndY = tableStartY + rowCount * rowHeight + 10;
+
+  // Render Table (no need to track result)
+  autoTable(doc, {
+    startY: tableStartY,
     head: [['Field', 'Details']],
     body: tableData,
     styles: { fontSize: 10, cellPadding: 3 },
@@ -76,26 +80,24 @@ export function generateCustomPDF(row) {
     theme: 'striped',
   });
 
-  const afterTableY = result.finalY + 20;
+  // Signature area at bottom of the page
+const pageHeight = doc.internal.pageSize.height;
+const signatureY = pageHeight - 30; // 30 units from bottom
 
-  // Signature area
-  doc.setFontSize(12);
-  doc.setTextColor(0);
-  doc.text('Signature:', 14, afterTableY);
-  doc.line(40, afterTableY, 140, afterTableY); // signature line
-  doc.setFontSize(10);
-  doc.setTextColor(120);
-  doc.text('Receiver / Technician Name & Signature', 14, afterTableY + 6);
+doc.setFontSize(12);
+doc.setTextColor(0);
+doc.text('Signature:', 14, signatureY);
+doc.line(40, signatureY, 140, signatureY); // horizontal line
+doc.setFontSize(10);
+doc.setTextColor(120);
+doc.text('Receiver / Technician Name & Signature', 14, signatureY + 6);
+
 
   // Footer
-  const pageHeight = doc.internal.pageSize.height;
+  // const pageHeight = doc.internal.pageSize.height;
   doc.setFontSize(9);
   doc.setTextColor(150);
-  doc.text(
-    'CommBox © - Confidential Delivery Information',
-    14,
-    pageHeight - 10
-  );
+  doc.text('CommBox © - Confidential Delivery Information', 14, pageHeight - 10);
 
   const fileName = row.Name ? `invoice-${row.Name}.pdf` : 'invoice.pdf';
   doc.save(fileName);

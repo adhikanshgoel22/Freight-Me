@@ -174,6 +174,13 @@ const handleLogout = () => {
     const url = `https://fcapp.fastcourier.com.au/#/package-details?pickup=${pickup}&drop=${drop}&length=${length}&width=${width}&height=${height}&weight=${weight}`;
     window.open(url, '_blank');
   };
+const [flippedCards, setFlippedCards] = useState({});
+const toggleFlip = (id) => {
+  setFlippedCards((prev) => ({
+    ...prev,
+    [id]: !prev[id],
+  }));
+};
 
  const filteredData = data.filter((row) => {
   const matchesSearch = headers.some((key) =>
@@ -190,7 +197,19 @@ const handleLogout = () => {
 });
 
 
-  if (loading) return <p className="p-6 text-gray-600">Loading CommBox data...</p>;
+  if (loading) {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
+      <div className="w-2/3 max-w-md">
+        <div className="relative h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div className="absolute top-0 left-0 h-full bg-blue-500 animate-loading-bar w-1/2"></div>
+        </div>
+        <p className="mt-4 text-gray-600 text-center text-lg">Loading data, please wait...</p>
+      </div>
+    </div>
+  );
+}
+
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
@@ -264,48 +283,75 @@ const statusColor = statusColorMap[status] || 'bg-yellow-100';
 
     return (
       <div
-        key={row.id}
-        className={`border rounded-lg shadow p-4 hover:shadow-md transition ${statusColor}`}
-      >
-        <div className="flex justify-between items-center mb-2">
-          <h3 className="text-lg font-semibold text-blue-700">
-            {row.Name || "Untitled"}
-          </h3>
-          {/* PDF download button (optional) */}
-          <button
-            onClick={() => generateCustomPDF(row)}
-
-            className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Connote
-          </button>
-        </div>
-
-        <div className="space-y-2">
-          {EXPORT_COLUMNS.map((col, j) => (
-            
-            <div key={j} className="text-sm">
-              <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{" "}
-              <span className="text-gray-800">{row[col] || "—"}</span>
-            </div>
-          ))}
-
-          {/* <div className="text-sm mt-3">
-            <span className="font-medium text-gray-700">Panel Status:</span>{" "}
-            <span className="text-gray-800">{status}</span>
-          </div> */}
-
-          {/* Optional: FastCourier Button */}
-          <div className="flex gap-2 mt-2">
-            <button
-              onClick={() => redirectToFastCourier(row)}
-              className="px-3 py-1 text-sm bg-indigo-600 text-white rounded hover:bg-indigo-700"
-            >
-              Go to FastCourier
-            </button>
-          </div>
-        </div>
+  key={row.id}
+  className="relative w-full h-[280px] cursor-pointer"
+  onClick={() => toggleFlip(row.id)}
+>
+  <div
+    className={`w-full h-full transition-transform duration-500 ease-in-out transform ${
+      flippedCards[row.id] ? 'rotate-y-180' : ''
+    }`}
+    style={{
+      transformStyle: 'preserve-3d',
+      perspective: '1000px',
+      position: 'relative',
+    }}
+  >
+    {/* Front Side - colored using statusColor */}
+    <div
+      className={`absolute w-full h-full p-4 rounded-lg shadow-md border ${statusColor}`}
+      style={{
+        backfaceVisibility: 'hidden',
+      }}
+    >
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-semibold text-blue-700 h-12">
+          {row.Name || 'Untitled'}
+        </h3>
+        {/* <span className="text-sm text-gray-600">(click to flip)</span> */}
       </div>
+      <div className="space-y-1">
+        {EXPORT_COLUMNS.map((col, j) => (
+          <div key={j} className="text-sm">
+            <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
+            <span className="text-gray-800">{row[col] || '—'}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Back Side - neutral white for legibility */}
+    <div
+      className="absolute w-full h-full p-4 rounded-lg shadow-md border bg-white transform rotate-y-180"
+      style={{
+        backfaceVisibility: 'hidden',
+      }}
+    >
+      <div className="flex flex-col justify-center items-center h-full gap-4">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            generateCustomPDF(row);
+          }}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          ConNote
+        </button>
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            redirectToFastCourier(row);
+          }}
+          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+        >
+          FastCourier
+        </button>
+        {/* <span className="text-sm text-gray-500">(click to flip back)</span> */}
+      </div>
+    </div>
+  </div>
+</div>
+
     )
   })}
 </div>
