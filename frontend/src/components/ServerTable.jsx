@@ -4,7 +4,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
 import { useNavigate } from "react-router-dom";
-
+import { generateCustomPDF } from "./Pdf.js";
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
@@ -143,24 +143,7 @@ export default function MondayTableWithExport() {
     URL.revokeObjectURL(url);
   };
 
-  const downloadRowAsPDF = (row) => {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text(`Item: ${row.Name}`, 14, 20);
-
-    const rowData = EXPORT_COLUMNS.map(header => [header, row[header] || '—']);
-
-    autoTable(doc, {
-      startY: 30,
-      head: [['Field', 'Value']],
-      body: rowData,
-      styles: { fontSize: 10 },
-      headStyles: { fillColor: [29, 78, 216] },
-    });
-
-    const fileName = row.Name ? `item-${row.Name}.pdf` : 'item.pdf';
-    doc.save(fileName);
-  };
+  
 const handleLogout = () => {
   localStorage.removeItem('user');
   navigate('/login', { replace: true });
@@ -290,10 +273,11 @@ const statusColor = statusColorMap[status] || 'bg-yellow-100';
           </h3>
           {/* PDF download button (optional) */}
           <button
-            onClick={() => downloadRowAsPDF(row)}
+            onClick={() => generateCustomPDF(row)}
+
             className="text-sm px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700"
           >
-            PDF
+            Connote
           </button>
         </div>
 

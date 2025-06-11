@@ -235,7 +235,19 @@ useEffect(() => {
 
 
 
-  if (loading) return <p className="p-6 text-gray-600">Loading Data....</p>;
+  if (loading) {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
+      <div className="w-2/3 max-w-md">
+        <div className="relative h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+          <div className="absolute top-0 left-0 h-full bg-blue-500 animate-loading-bar w-1/2"></div>
+        </div>
+        <p className="mt-4 text-gray-600 text-center text-lg">Loading data, please wait...</p>
+      </div>
+    </div>
+  );
+}
+
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
