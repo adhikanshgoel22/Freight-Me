@@ -23,9 +23,7 @@ export default function Login({ onLogin }) {
   const navigate = useNavigate()
   const [rememberMe, setRememberMe] = useState(false)
 
-
-
-  // Simple hash (for demonstration purposes)
+  // Simple hash (not secure, for demo only)
   const hashString = (str) => {
     return btoa(str).replace(/=/g, "")
   }
@@ -42,15 +40,18 @@ export default function Login({ onLogin }) {
       })
 
       const user = res.data.user
+
+      // Store user in local/session storage
       if (rememberMe) {
-  localStorage.setItem("user", JSON.stringify(user))
-} else {
-  sessionStorage.setItem("user", JSON.stringify(user))
-}
+        localStorage.setItem("user", JSON.stringify(user))
+      } else {
+        sessionStorage.setItem("user", JSON.stringify(user))
+      }
 
-
+      // Generate user hash from email or ID
       const userHash = hashString(user.email || user.id || email)
 
+      // Callback to update parent state if needed
       onLogin?.(user)
 
       toast({
@@ -58,8 +59,8 @@ export default function Login({ onLogin }) {
         description: "Welcome back!",
       })
 
-      // Navigate to hashed booking route
-      navigate(`/booking/${userHash}`)
+      // Redirect directly to the client table with hash
+      navigate(`/table/${userHash}`);
 
     } catch (err) {
       const message = err?.response?.data?.error || "Login failed"
@@ -132,16 +133,14 @@ export default function Login({ onLogin }) {
 
               <div className="flex items-center justify-between text-sm">
                 <label className="flex items-center space-x-2">
-  <input
-    type="checkbox"
-    className="rounded"
-    checked={rememberMe}
-    onChange={() => setRememberMe(!rememberMe)}
-  />
-  <span className="text-gray-600">Remember me</span>
-</label>
-
-                
+                  <input
+                    type="checkbox"
+                    className="rounded"
+                    checked={rememberMe}
+                    onChange={() => setRememberMe(!rememberMe)}
+                  />
+                  <span className="text-gray-600">Remember me</span>
+                </label>
               </div>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
@@ -150,8 +149,6 @@ export default function Login({ onLogin }) {
                 {isLoading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
-
-           
           </CardContent>
         </Card>
       </div>

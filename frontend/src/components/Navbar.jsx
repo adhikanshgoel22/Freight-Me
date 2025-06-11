@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Truck, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button.tsx";
+import logo from '../pages/logo.jpg';
 
 const Header = () => {
   const navigate = useNavigate();
@@ -19,7 +20,7 @@ const Header = () => {
           <div className="flex justify-between items-center h-16">
             {/* Logo Section */}
             <div className="flex items-center space-x-2">
-              <Truck className="h-8 w-8 text-blue-600" />
+              <img src={logo} alt="" className="h-12 w-14"/>
               <span className="text-xl font-bold text-gray-900">
                 <a href="/">FreightMe</a>
               </span>

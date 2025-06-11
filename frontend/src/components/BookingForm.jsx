@@ -3,7 +3,8 @@ import { Autocomplete, GoogleMap, Marker } from '@react-google-maps/api';
 import { useNavigate } from 'react-router-dom';
 import Footer from './Footer';
 import Header from './Navbar';
-
+import { useParams,Link } from 'react-router-dom';
+// import { Link } from 'lucide-react';
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 const TICKET_COLUMN_ID = 'text_mkrmbn8h';
@@ -30,7 +31,7 @@ const defaultCenter = { lat: -33.8688, lng: 151.2093 };
 const BookingForm = () => {
   const navigate = useNavigate();
   const autocompleteRef = useRef(null);
-
+ 
   const [ticketNumber, setTicketNumber] = useState('');
   const [pickup, setPickup] = useState('');
   const [pickupCoords, setPickupCoords] = useState(null);
@@ -44,9 +45,7 @@ const BookingForm = () => {
   const user = JSON.parse(localStorage.getItem('user'));
 
   useEffect(() => {
-    if (!user || user === 'undefined' || user === 'null') {
-      navigate('/login');
-    } else {
+    
       const identifier = user?.email || user?.username || 'guest';
       (async () => {
         const encoder = new TextEncoder();
@@ -55,7 +54,7 @@ const BookingForm = () => {
         const hashArray = Array.from(new Uint8Array(hashBuffer));
         setUserHash(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
       })();
-    }
+    
   }, [navigate, user]);
 
   const onLoad = useCallback((autocomplete) => {
@@ -194,7 +193,9 @@ const BookingForm = () => {
     setBookingConfirmed(true);
     setStatus(`Booking confirmed for ticket ${ticketNumber}.`);
   };
-
+  const handleNavigateToTable = () => {
+    navigate(`/table/${userHash}`);
+  };
   // import { useNavigate } from 'react-router-dom';
 
 // inside your component
@@ -212,21 +213,17 @@ const handleLogout = () => {
       <div className="max-w-2xl mx-auto p-4">
         {/* Top Nav */}
         <div className="w-full flex justify-between items-center p-4 rounded-md mb-4">
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate(`/table/${userHash}`)}
-              className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 transition"
-              disabled={!userHash}
-            >
-              View Table
-            </button>
-            {/* <button
-              onClick={handleLogout}
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-            >
-              Logout
-            </button> */}
-          </div>
+          <h1 className="text-4xl font-bold text-blue-700 ">
+          Hey Team
+        </h1>
+         <div className="mt-6">
+        <button
+          onClick={handleNavigateToTable}
+          className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
+        >
+          See Panel Movement
+        </button>
+      </div>
         </div>
 
         {/* Ticket Input */}

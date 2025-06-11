@@ -5,6 +5,8 @@ import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
 import { useNavigate } from "react-router-dom";
 
+import { Link } from 'react-router-dom';
+
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
@@ -29,6 +31,31 @@ export default function ClientTable() {
       [rowId]: newType,
     }));
   };
+
+  const [userHash, setUserHash] = useState('');
+
+  // const user = JSON.parse(localStorage.getItem('user'));
+
+   const [user, setUser] = useState(null);
+
+useEffect(() => {
+  const storedUser = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user'));
+  setUser(storedUser);
+
+  if (!storedUser || storedUser === 'undefined' || storedUser === 'null') {
+    navigate('/login');
+  } else {
+    const identifier = storedUser?.email || storedUser?.username || 'guest';
+    (async () => {
+      const encoder = new TextEncoder();
+      const data = encoder.encode(identifier);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      setUserHash(hashArray.map(b => b.toString(16).padStart(2, '0')).join(''));
+    })();
+  }
+}, [navigate]);
+
 
   const updateDeliveryType = async (rowId) => {
     try {
@@ -207,6 +234,7 @@ export default function ClientTable() {
 });
 
 
+
   if (loading) return <p className="p-6 text-gray-600">Loading Data....</p>;
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
@@ -227,12 +255,13 @@ export default function ClientTable() {
       Logout
     </button> */}
 
-    {/* <button
-      onClick={() => setShowReplaceOnly((prev) => !prev)}
-      className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-    >
-      {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
-    </button> */}
+
+<Link to={`/booking/${userHash}`}>
+        <button className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition">
+          Back to Booking Page
+        </button>
+      </Link>
+
   </div>
 
   {/* Center search bar */}

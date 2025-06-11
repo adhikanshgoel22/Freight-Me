@@ -16,28 +16,30 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./components/PrivateRoute"; // if used
 import About from './pages/About';
 import Query from './pages/Query';
-
+import Login from './components/Login';
+import New from './pages/New';
 export default function App() {
   return (
     <GoogleMapsProvider>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Home />} />
+        <Route path="/login" element={<Login />} />
         {/* <Route path="/dashboard" element={<Dashboard />} /> */}
         <Route path="/server" element={<ServerLogin />} />
         <Route path="/tit" element={<TicketTable />} />
         <Route path="/ti" element={<TableWithDownload />} />
-        {/* <Route path="/server/view" element={<MondayTableWithExport />} /> */}
+        
         <Route path="/view2" element={<MondayBoardViewer />} />
         {/* <Route path="/client/view" element={<ClientTable />} /> */}
         <Route path="/contact" element={<Contact />} />
         <Route path="/about" element={<About />} />
-        {/* ✅ New route for booking with encoded user */}
+      
         <Route path="/booking/:userHash" element={<BookingForm />} />
         <Route path="/table/:userHash" element={<ClientTable />} />
+
         <Route path="/server/:usernameHash" element={<MondayTableWithExport />} />
         <Route path="/queries" element={<Query />} />
-
+        {/* <Route path="/new/:userHash" element={<New />} /> */}
 
         {/* Catch-all fallback */}
         <Route path="*" element={<Navigate to="/" />} />
