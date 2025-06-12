@@ -8,11 +8,11 @@ import { generateCustomPDF } from "./Pdf.js";
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
-const EXPORT_COLUMNS = ['group_title', 'dropdown_mkrmqfte', 'text_mkrmbn8h', 'numeric_mkrmh92c','text_mkrma2f0','text_mkrmfhjz','date_mkrmrazc','status'];
+const EXPORT_COLUMNS = [ 'dropdown_mkrmqfte', 'text_mkrmbn8h', 'numeric_mkrmh92c','text_mkrma2f0','text_mkrmfhjz','date_mkrmrazc','status'];
 
 const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
 
-const ColTitle=['Group','SKU','Serial','Qty','Issues','Reference','ETA','Status'];
+const ColTitle=[,'SKU','Serial','Qty','Issues','Reference','ETA','Status'];
 export default function MondayTableWithExport() {
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
  const navigate=useNavigate();
