@@ -12,7 +12,7 @@ export default function GoogleMapsProvider({ children }) {
   })
   
   if (loadError) return <div>Error loading Google Maps</div>
-  if (!isLoaded) return <div>Loading Maps...</div>
+  if (!isLoaded) return <div></div>
 
   return children
 }

@@ -1,57 +1,35 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
 import { useNavigate } from "react-router-dom";
 import { generateCustomPDF } from "./Pdf.js";
+import CardModal from "./CardModal";
+
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
-const EXPORT_COLUMNS = [ 'dropdown_mkrmqfte', 'text_mkrmbn8h', 'numeric_mkrmh92c','text_mkrma2f0','text_mkrmfhjz','date_mkrmrazc','status'];
+const EXPORT_COLUMNS = [
+  "dropdown_mkrmqfte",
+  "text_mkrmbn8h",
+  "numeric_mkrmh92c",
+  "text_mkrma2f0",
+  "text_mkrmfhjz",
+  "date_mkrmrazc",
+  "status",
+];
 
-const DELIVERY_TYPES = ['Panel in Transit', 'Panel with Tech', 'Panel Delivered', 'Panel On Site'];
+const ColTitle = ["SKU", "Serial", "Qty", "Issues", "Reference", "ETA", "Status"];
 
-const ColTitle=[,'SKU','Serial','Qty','Issues','Reference','ETA','Status'];
 export default function MondayTableWithExport() {
-  const [showReplaceOnly, setShowReplaceOnly] = useState(false);
- const navigate=useNavigate();
   const [data, setData] = useState([]);
   const [headers, setHeaders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [deliveryTypes, setDeliveryTypes] = useState({});
-
-  const handleDeliveryTypeChange = (rowId, newType) => {
-    setDeliveryTypes((prev) => ({
-      ...prev,
-      [rowId]: newType,
-    }));
-  };
-
-  const updateDeliveryType = async (rowId) => {
-    try {
-      const selectedType = deliveryTypes[rowId];
-      if (!selectedType) {
-        alert('Please select a delivery type before saving.');
-        return;
-      }
-
-      const ticketRef = data.find(d => d.id === rowId)?.text01 || '';
-      const res = await axios.post(`https://freight-me-1.onrender.com/ticket`, {
-        text01: ticketRef,
-        delivery_type: selectedType,
-      });
-
-      if (res.status === 200 || res.status === 201) {
-        alert('Delivery type updated!');
-      }
-    } catch (err) {
-      alert('Failed to update delivery type.');
-      console.error(err);
-    }
-  };
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [showReplaceOnly, setShowReplaceOnly] = useState(false);
+  const [selectedCard, setSelectedCard] = useState(null);
+  const navigate = useNavigate();
 
   const fetchMondayData = async () => {
     try {
@@ -66,7 +44,6 @@ export default function MondayTableWithExport() {
                 column_values {
                   id
                   text
-                  
                 }
               }
             }
@@ -75,19 +52,19 @@ export default function MondayTableWithExport() {
       `;
 
       const mondayRes = await axios.post(
-        'https://api.monday.com/v2',
+        "https://api.monday.com/v2",
         { query },
         {
           headers: {
             Authorization: MONDAY_API_KEY,
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
       const mondayItems = mondayRes.data.data.boards[0]?.items_page?.items || [];
 
-      const supabaseRes = await axios.get('https://freight-me-1.onrender.com/tickets');
+      const supabaseRes = await axios.get("https://freight-me-1.onrender.com/tickets");
       const ticketMap = {};
       supabaseRes.data.tickets.forEach((t) => {
         ticketMap[t.text01] = t.delivery_type;
@@ -98,24 +75,17 @@ export default function MondayTableWithExport() {
         const row = { id: item.id, Name: item.name };
         item.column_values.forEach((col) => {
           const label = col.title || col.id;
-          row[label] = col.text || '';
+          row[label] = col.text || "";
           columnsSet.add(label);
         });
 
-        row.delivery_type = ticketMap[row['text01']] || '';
+        row.delivery_type = ticketMap[row["text01"]] || "";
         return row;
       });
 
-      const finalHeaders = ['Name', ...Array.from(columnsSet)];
+      const finalHeaders = ["Name", ...Array.from(columnsSet)];
       setHeaders(finalHeaders);
       setData(parsedData);
-
-      const typeMap = {};
-      parsedData.forEach((row) => {
-        typeMap[row.id] = row.delivery_type || '';
-      });
-      setDeliveryTypes(typeMap);
-
     } catch (err) {
       setError(err.response?.data || err.message);
     } finally {
@@ -127,76 +97,70 @@ export default function MondayTableWithExport() {
     fetchMondayData();
   }, []);
 
-  const downloadCSV = () => {
-    const csvRows = [headers.join(',')];
-    for (const row of data) {
-      const values = headers.map((h) => `"${(row[h] || '').replace(/"/g, '""')}"`);
-      csvRows.push(values.join(','));
-    }
-
-    const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'monday-data.csv';
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    navigate("/login", { replace: true });
   };
 
-  
-const handleLogout = () => {
-  localStorage.removeItem('user');
-  navigate('/login', { replace: true });
-};
-
   const redirectToFastCourier = (row) => {
-    if (!row['location9'] || !row['long_text2']) {
+    if (!row["location9"] || !row["long_text2"]) {
       alert("Missing pickup or dropoff address.");
       return;
     }
 
-    const pickup = encodeURIComponent(row['location9']);
-    const drop = encodeURIComponent(row['long_text2']);
-    const length = encodeURIComponent(row['length'] || '10');
-    const width = encodeURIComponent(row['width'] || '10');
-    const height = encodeURIComponent(row['height'] || '10');
-    const weight = encodeURIComponent(row['weight'] || '1');
-
-    localStorage.setItem('fastcourier_package', JSON.stringify({
-      pickup: row['location9'],
-      drop: row['long_text2'],
-      length,
-      width,
-      height,
-      weight,
-    }));
+    const pickup = encodeURIComponent(row["location9"]);
+    const drop = encodeURIComponent(row["long_text2"]);
+    const length = encodeURIComponent(row["length"] || "10");
+    const width = encodeURIComponent(row["width"] || "10");
+    const height = encodeURIComponent(row["height"] || "10");
+    const weight = encodeURIComponent(row["weight"] || "1");
 
     const url = `https://fcapp.fastcourier.com.au/#/package-details?pickup=${pickup}&drop=${drop}&length=${length}&width=${width}&height=${height}&weight=${weight}`;
-    window.open(url, '_blank');
+    window.open(url, "_blank");
   };
-const [flippedCards, setFlippedCards] = useState({});
-const toggleFlip = (id) => {
-  setFlippedCards((prev) => ({
-    ...prev,
-    [id]: !prev[id],
-  }));
-};
 
- const filteredData = data.filter((row) => {
-  const matchesSearch = headers.some((key) =>
-    (row[key] || '').toString().toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const downloadCSV = () => {
+    const csvRows = [headers.join(",")];
+    for (const row of data) {
+      const values = headers.map((h) => `"${(row[h] || "").replace(/"/g, '""')}"`);
+      csvRows.push(values.join(","));
+    }
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "monday-data.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const filteredData = data.filter((row) => {
+    const matchesSearch = headers.some((key) =>
+      (row[key] || "").toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     const hasReplaceText =
-  Object.values(row).some((value) =>
-    typeof value === 'string' &&
-    value.toLowerCase().includes('replace entire panel')
-  ) || /2$/.test(row['text01']);
+      Object.values(row).some(
+        (value) =>
+          typeof value === "string" &&
+          value.toLowerCase().includes("replace entire panel")
+      ) || /2$/.test(row["text01"]);
 
-  return matchesSearch && (!showReplaceOnly || hasReplaceText);
-});
+    const status = (row["status"] || "Unknown").trim().toLowerCase();
+    const matchesStatus = statusFilter === "All" || status === statusFilter.toLowerCase();
 
+    return matchesSearch && (!showReplaceOnly || hasReplaceText) && matchesStatus;
+  });
 
+  const statusColorMap = {
+    "delivered": "bg-green-100",
+    "panel in transit": "bg-blue-100",
+    "pending pickup": "bg-red-100",
+    "unknown": "bg-yellow-100",
+  };
+
+  
   if (loading) {
   return (
     <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
@@ -213,149 +177,92 @@ const toggleFlip = (id) => {
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
   return (
-    <div>
-      <Header></Header>
-      <div className="max-w-6xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h2 className="text-3xl font-semibold mb-4 text-center text-blue-700">
-        COMMBOX PANELS INVENTORY
-      </h2>
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-  {/* Left side buttons */}
-  <div className="flex gap-3">
-    {/* <button
-      onClick={handleLogout}
-      className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition"
-    >
-      Logout
-    </button> */}
+    <div className="bg-blue-300 min-h-screen">
+      <Header />
+      <div className="max-w-6xl mx-auto p-6">
+        <h2 className="text-3xl font-semibold mb-4 text-center text-blue-800">
+          COMMBOX PANELS INVENTORY
+        </h2>
 
-    <button
-      onClick={() => setShowReplaceOnly((prev) => !prev)}
-      className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
-    >
-      {showReplaceOnly ? 'Show All Cards' : 'Show "Replace Entire Panel" Only'}
-    </button>
-  </div>
+        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+          <button
+            onClick={() => setShowReplaceOnly((prev) => !prev)}
+            className="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+          >
+            {showReplaceOnly ? "Show All Cards" : 'Show "Replace Entire Panel" Only'}
+          </button>
 
-  {/* Center search bar */}
-  <div className="flex justify-center w-full sm:w-auto">
-    <input
-      type="text"
-      placeholder="Search by any field..."
-      value={searchTerm}
-      onChange={(e) => setSearchTerm(e.target.value)}
-      className="w-full sm:w-[300px] px-4 py-2 border rounded-lg shadow-sm"
-    />
-  </div>
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-3 py-2 border rounded shadow-sm text-sm  bg-blue-200"
+          >
+            <option value="All">All</option>
+            <option value="Delivered">Delivered</option>
+            <option value="Panel in Transit">Panel in Transit</option>
+            <option value="Pending Pickup">Pending Pickup</option>
+            <option value="Unknown">Unknown</option>
+          </select>
 
-  {/* Right side button */}
-  <div className="flex justify-end">
-    <button
-      onClick={downloadCSV}
-      className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
-    >
-      Download CSV
-    </button>
-  </div>
-</div>
+          <input
+            type="text"
+            placeholder="Search by any field..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full sm:w-[300px] px-4 py-2 border rounded-lg shadow-sm"
+          />
 
+          <button
+            onClick={downloadCSV}
+            className="px-5 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition"
+          >
+            Download CSV
+          </button>
+        </div>
 
-     
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  {filteredData.map((row) => {
-    const status = (row['status'] || 'Unknown').trim().toLowerCase();
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredData.map((row) => {
+            const status = (row["status"] || "Unknown").trim().toLowerCase();
+            const statusColor = statusColorMap[status] || "bg-yellow-100";
 
-    console.log("Row ID:", row.id, "Delivery Type:", deliveryTypes[row.id]);
+            return (
+              <div
+                key={row.id}
+                onClick={() => setSelectedCard(row)}
+                className={`rounded-lg shadow-md p-4 border ${statusColor} cursor-pointer hover:shadow-lg transition`}
+              >
+                <h3 className="text-lg font-semibold text-blue-800 truncate mb-2">
+                  {row.Name || "Untitled"}
+                </h3>
+                <div className="text-sm space-y-1">
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Serial:</span>
+                    <span className="text-gray-800 text-right">{row["text_mkrmbn8h"] || "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Reference:</span>
+                    <span className="text-gray-800 text-right">{row["text_mkrmfhjz"] || "—"}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="font-medium text-gray-700">Status:</span>
+                    <span className="text-gray-800 text-right">{row["status"] || "Unknown"}</span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
-    
-
-   const statusColorMap = {
-  'delivered': 'bg-green-100',
-  'panel in transit': 'bg-blue-100',
-  'pending pickup': 'bg-red-100',
-  'unknown': 'bg-yellow-100', // fallback
-};
-const statusColor = statusColorMap[status] || 'bg-yellow-100';
-
-
-
-    const DropOff="TSS Camelia"
-
-    return (
-      <div
-  key={row.id}
-  className="relative w-full h-[280px] cursor-pointer"
-  onClick={() => toggleFlip(row.id)}
->
-  <div
-    className={`w-full h-full transition-transform duration-500 ease-in-out transform ${
-      flippedCards[row.id] ? 'rotate-y-180' : ''
-    }`}
-    style={{
-      transformStyle: 'preserve-3d',
-      perspective: '1000px',
-      position: 'relative',
-    }}
-  >
-    {/* Front Side - colored using statusColor */}
-    <div
-      className={`absolute w-full h-full p-4 rounded-lg shadow-md border ${statusColor}`}
-      style={{
-        backfaceVisibility: 'hidden',
-      }}
-    >
-      <div className="flex justify-between items-center mb-2">
-        <h3 className="text-lg font-semibold text-blue-700 h-12">
-          {row.Name || 'Untitled'}
-        </h3>
-        {/* <span className="text-sm text-gray-600">(click to flip)</span> */}
+        {/* Modal */}
+        <CardModal
+          card={selectedCard}
+          onClose={() => setSelectedCard(null)}
+          onDownload={generateCustomPDF}
+          onCourier={redirectToFastCourier}
+          EXPORT_COLUMNS={EXPORT_COLUMNS}
+          ColTitle={ColTitle}
+        />
       </div>
-      <div className="space-y-1">
-        {EXPORT_COLUMNS.map((col, j) => (
-          <div key={j} className="text-sm">
-            <span className="font-medium text-gray-700">{ColTitle[j]}:</span>{' '}
-            <span className="text-gray-800">{row[col] || '—'}</span>
-          </div>
-        ))}
-      </div>
-    </div>
-
-    {/* Back Side - neutral white for legibility */}
-    <div
-      className="absolute w-full h-full p-4 rounded-lg shadow-md border bg-white transform rotate-y-180"
-      style={{
-        backfaceVisibility: 'hidden',
-      }}
-    >
-      <div className="flex flex-col justify-center items-center h-full gap-4">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            generateCustomPDF(row);
-          }}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          ConNote
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            redirectToFastCourier(row);
-          }}
-          className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
-        >
-          FastCourier
-        </button>
-        {/* <span className="text-sm text-gray-500">(click to flip back)</span> */}
-      </div>
-    </div>
-  </div>
-</div>
-
-    )
-  })}
-</div>
-    </div>
     </div>
   );
 }
