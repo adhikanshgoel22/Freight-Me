@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import { Button } from "../components/ui/button.tsx"
 import { Input } from "../components/ui/input.tsx"
@@ -15,6 +15,19 @@ import { useToast } from "../hooks/use-toast.ts"
 import axios from "axios"
 
 export default function Login({ onLogin }) {
+  
+
+useEffect(() => {
+  const savedEmail = localStorage.getItem("rememberedEmail");
+  const savedPassword = localStorage.getItem("rememberedPassword");
+
+  if (savedEmail && savedPassword) {
+    setEmail(savedEmail);
+    setPassword(savedPassword);
+    setRememberMe(true);
+  }
+}, []);
+
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -43,10 +56,15 @@ export default function Login({ onLogin }) {
 
       // Store user in local/session storage
       if (rememberMe) {
-        localStorage.setItem("user", JSON.stringify(user))
-      } else {
-        sessionStorage.setItem("user", JSON.stringify(user))
-      }
+  localStorage.setItem("user", JSON.stringify(user));
+  localStorage.setItem("rememberedEmail", email);
+  localStorage.setItem("rememberedPassword", password);
+} else {
+  sessionStorage.setItem("user", JSON.stringify(user));
+  localStorage.removeItem("rememberedEmail");
+  localStorage.removeItem("rememberedPassword");
+}
+
 
       // Generate user hash from email or ID
       const userHash = hashString(user.email || user.id || email)

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from "../components/ui/button.tsx"
 import { Input } from "../components/ui/input.tsx"
@@ -12,18 +12,6 @@ import {
   CardTitle,
 } from "../components/ui/Card.tsx"
 import { LogIn, User, Key } from "lucide-react"
-// import { useToast } from "../hooks/use-toast.ts"
-
-async function getHashedString(input) {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(input);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const base64 = btoa(String.fromCharCode(...hashArray));
-
-  // URL-safe Base64 encoding (Base64URL)
-  return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
 
 export default function ServerLogin({ onLogin }) {
   const [username, setUsername] = useState('')
@@ -31,8 +19,18 @@ export default function ServerLogin({ onLogin }) {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
-   const [isLoading, setIsLoading] = useState(false)
   const navigate = useNavigate()
+
+  // Auto-fill from localStorage
+  useEffect(() => {
+    const savedUsername = localStorage.getItem("rememberedUsername")
+    const savedPassword = localStorage.getItem("rememberedPassword")
+    if (savedUsername && savedPassword) {
+      setUsername(savedUsername)
+      setPassword(savedPassword)
+      setRememberMe(true)
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -45,8 +43,16 @@ export default function ServerLogin({ onLogin }) {
         password,
       })
 
-      // Your backend sends back { user } on success
       if (res.data.user) {
+        // Remember Me handling
+        if (rememberMe) {
+          localStorage.setItem("rememberedUsername", username)
+          localStorage.setItem("rememberedPassword", password)
+        } else {
+          localStorage.removeItem("rememberedUsername")
+          localStorage.removeItem("rememberedPassword")
+        }
+
         localStorage.setItem('server_auth', 'true')
         onLogin?.(res.data.user)
         navigate("/server/view")
@@ -64,7 +70,6 @@ export default function ServerLogin({ onLogin }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo & Heading */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
@@ -75,7 +80,6 @@ export default function ServerLogin({ onLogin }) {
           <p className="text-gray-600">Sign in to your account</p>
         </div>
 
-        {/* Login Form */}
         <Card className="shadow-xl">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Server Login</CardTitle>
@@ -92,7 +96,7 @@ export default function ServerLogin({ onLogin }) {
                   <Input
                     id="username"
                     type="text"
-                    placeholder="Enter your email"
+                    placeholder="Enter your username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-10"
@@ -131,8 +135,8 @@ export default function ServerLogin({ onLogin }) {
 
               {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Signing in..." : "Sign in"}
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Signing in..." : "Sign in"}
               </Button>
             </form>
           </CardContent>
@@ -141,5 +145,3 @@ export default function ServerLogin({ onLogin }) {
     </div>
   )
 }
-
-
