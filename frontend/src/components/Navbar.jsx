@@ -51,8 +51,8 @@ const Header = () => {
         {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden px-4 pb-4 space-y-3">
-            <a href="#features" className="block text-gray-700 hover:text-blue-600">Features</a>
-            <a href="/contact" className="block text-gray-700 hover:text-blue-600">Pricing</a>
+            {/* <a href="#features" className="block text-gray-700 hover:text-blue-600">Features</a> */}
+            {/* <a href="/contact" className="block text-gray-700 hover:text-blue-600">Pricing</a> */}
             <a href="/contact" className="block text-gray-700 hover:text-blue-600">Contact</a>
             <button
               onClick={handleLogout}

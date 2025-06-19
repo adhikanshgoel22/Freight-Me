@@ -1,104 +1,93 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import logoImg from '../pages/logo.jpg'; // <-- Small logo file path or base64
+import logoImg from '../pages/logo.jpg'; // Use a small B&W logo or remove
 
-const EXPORT_COLUMNS = [
-  'group_title',
-  'dropdown_mkrmqfte',
-  'text_mkrmbn8h',
-  'numeric_mkrmh92c',
-  'text_mkrma2f0',
-  'text_mkrmfhjz',
-  'date_mkrmrazc',
-  'status',
-];
-
-const ColTitle = [
-  'Group',
-  'SKU',
-  'Serial No.',
-  'Quantity',
-  'Issues',
-  'Reference',
-  'ETA',
-  'Status',
-];
-
-export function generateCustomPDF(row) {
-  const doc = new jsPDF();
-
-  // Logo
-  try {
-    doc.addImage(logoImg, 'PNG', 150, 10, 60, 35);
-  } catch (e) {
-    console.warn("Logo couldn't be added:", e.message);
-  }
+export function generateConnotePDF(row) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'A4' });
 
   // Header
-  doc.setFontSize(20);
-  doc.setTextColor(33, 37, 41);
-  doc.text('CommBox Delivery Invoice', 14, 20);
+  doc.setFontSize(18);
+  doc.setTextColor(0);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Delivery Consignment Note', 14, 20);
 
-  // Contact Info
+  // Company Info
   doc.setFontSize(10);
-  doc.setTextColor(100);
-  doc.text('CommBox Pty Ltd', 14, 28);
-  doc.text('support@commbox.com.au | +61 1300 132 269', 14, 33);
+  doc.setFont('helvetica', 'normal');
+  doc.text('FreightMe', 14, 27);
+  doc.text('projects@installme.com.au', 14, 32);
+  doc.text(`Date: ${new Date().toLocaleDateString()}`, 14, 38);
 
-  // Invoice Info
-  doc.setFontSize(11);
-  doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 42);
-  doc.text(`Panel ID: ${row.Name || 'Untitled'}`, 14, 48);
+  // Receiver Info
+  // const receiverName = row[row.Name] || "—";
+  const deliveryAddress = row.Name || "—";
 
-  // Table Data
-  const tableData = EXPORT_COLUMNS.map((col, i) => [
-    ColTitle[i],
-    row[col] || '—',
-  ]);
-
-  // Estimate height after table (Y position = startY + rowCount * rowHeight + some margin)
-  const tableStartY = 60;
-  const rowHeight = 8;
-  const rowCount = tableData.length + 1; // +1 for header row
-  const estimatedTableEndY = tableStartY + rowCount * rowHeight + 10;
-
-  // Render Table (no need to track result)
   autoTable(doc, {
-    startY: tableStartY,
-    head: [['Field', 'Details']],
-    body: tableData,
-    styles: { fontSize: 10, cellPadding: 3 },
+    startY: 45,
+    head: [[ 'Delivery Address']],
+    body: [[ deliveryAddress]],
+    styles: {
+      fontSize: 10,
+      textColor: 0,
+      lineColor: 0,
+      lineWidth: 0.1,
+    },
     headStyles: {
-      fillColor: [22, 82, 240],
-      textColor: 255,
-      halign: 'left',
+      fillColor: [255, 255, 255],
+      textColor: 0,
+      fontStyle: 'bold',
     },
-    alternateRowStyles: {
-      fillColor: [245, 245, 245],
-    },
+    theme: 'grid',
     margin: { left: 14, right: 14 },
-    theme: 'striped',
   });
 
-  // Signature area at bottom of the page
-const pageHeight = doc.internal.pageSize.height;
-const signatureY = pageHeight - 30; // 30 units from bottom
+  // Package Details
+  const packageData = {
+    serial: row["text_mkrmbn8h"] || "—",
+    quantity: row["numeric_mkrmh92c"] || "—",
+    reference: row["text_mkrmfhjz"] || "—",
+    weight: row["weight"] || "—",
+    dimensions: `${row["length"] || "—"} x ${row["width"] || "—"} x ${row["height"] || "—"} cm`,
+  };
 
-doc.setFontSize(12);
-doc.setTextColor(0);
-doc.text('Signature:', 14, signatureY);
-doc.line(40, signatureY, 140, signatureY); // horizontal line
-doc.setFontSize(10);
-doc.setTextColor(120);
-doc.text('Receiver / Technician Name & Signature', 14, signatureY + 6);
+  const tableStartY = doc.lastAutoTable.finalY + 10;
+  autoTable(doc, {
+    startY: tableStartY,
+    head: [['Serial', 'Quantity', 'Reference', 'Weight (kg)', 'Dimensions (cm)']],
+    body: [[
+      packageData.serial,
+      packageData.quantity,
+      packageData.reference,
+      packageData.weight,
+      packageData.dimensions,
+    ]],
+    styles: {
+      fontSize: 10,
+      textColor: 0,
+      lineColor: 0,
+      lineWidth: 0.1,
+    },
+    headStyles: {
+      fillColor: [255, 255, 255],
+      textColor: 0,
+      fontStyle: 'bold',
+    },
+    theme: 'grid',
+    margin: { left: 14, right: 14 },
+  });
 
+  // Footer & Signatures
+  const signY = doc.lastAutoTable.finalY + 20;
+  doc.text('Receiver Signature:', 14, signY);
+  doc.line(50, signY, 120, signY);
 
-  // Footer
-  // const pageHeight = doc.internal.pageSize.height;
+  doc.text('Driver Signature:', 14, signY + 15);
+  doc.line(50, signY + 15, 120, signY + 15);
+
   doc.setFontSize(9);
-  doc.setTextColor(150);
-  doc.text('CommBox © - Confidential Delivery Information', 14, pageHeight - 10);
+  doc.setTextColor(100);
+  doc.text('FreightMe © - Delivery Consignment - Confidential', 14, 285);
 
-  const fileName = row.Name ? `invoice-${row.Name}.pdf` : 'invoice.pdf';
+  const fileName = row.Name ? `connote-${row.Name}.pdf` : 'delivery-note.pdf';
   doc.save(fileName);
 }

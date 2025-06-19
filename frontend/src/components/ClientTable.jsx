@@ -4,8 +4,8 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import Header from "./Navbar";
 import { useNavigate, Link } from "react-router-dom";
-import CardModal from "./CardModal";
-import { generateCustomPDF } from "./Pdf.js";
+import ClientCardModal from "./ClientCardModal.jsx";
+import { generateConnotePDF } from "./Pdf.js";
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
 
@@ -211,13 +211,15 @@ export default function ClientTable() {
         </div>
 
         {/* Modal */}
-        <CardModal
+        <ClientCardModal
           card={selectedCard}
           onClose={() => setSelectedCard(null)}
-          onDownload={generateCustomPDF}
+          onDownload={generateConnotePDF}
           EXPORT_COLUMNS={EXPORT_COLUMNS}
           ColTitle={ColTitle}
           disableFastCourier={true}
+          onSave={false}
+          onChange={false}
         />
       </div>
     </div>

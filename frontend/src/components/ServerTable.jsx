@@ -1,9 +1,10 @@
+
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Header from "./Navbar";
 import { useNavigate } from "react-router-dom";
-import { generateCustomPDF } from "./Pdf.js";
-import CardModal from "./CardModal";
+import { generateConnotePDF } from "./Pdf.js";
+import EditableCardModal from "./CardModal";
 
 const MONDAY_API_KEY = process.env.REACT_APP_MONDAY_API_KEY;
 const BOARD_ID = process.env.REACT_APP_BOARD_ID;
@@ -29,6 +30,7 @@ export default function MondayTableWithExport() {
   const [statusFilter, setStatusFilter] = useState("All");
   const [showReplaceOnly, setShowReplaceOnly] = useState(false);
   const [selectedCard, setSelectedCard] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   const fetchMondayData = async () => {
@@ -96,6 +98,100 @@ export default function MondayTableWithExport() {
   useEffect(() => {
     fetchMondayData();
   }, []);
+const createMondayItem = async (newCard) => {
+  try {
+    const itemName = newCard.Name || "Untitled";
+
+    const columnValues = EXPORT_COLUMNS.reduce((acc, col) => {
+      acc[col] = newCard[col] || "";
+      return acc;
+    }, {});
+
+    const query = `
+      mutation {
+        create_item (
+          board_id: ${BOARD_ID},
+          item_name: "${itemName}",
+          column_values: ${JSON.stringify(JSON.stringify(columnValues))}
+        ) {
+          id
+        }
+      }
+    `;
+
+    const res = await axios.post(
+      "https://api.monday.com/v2",
+      { query },
+      {
+        headers: {
+          Authorization: MONDAY_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    return res.data.data.create_item;
+  } catch (err) {
+    console.error("Failed to create Monday item:", err);
+    alert("Error creating item on Monday.com");
+  }
+};
+const handleSaveCard = async (updatedCard) => {
+  if (!updatedCard.id) {
+    const newItem = await createMondayItem(updatedCard);
+    if (newItem?.id) {
+      updatedCard.id = newItem.id;
+    }
+  } else {
+    await updateMondayItem(updatedCard);
+  }
+
+  setData((prevData) => {
+    const existingIndex = prevData.findIndex((item) => item.id === updatedCard.id);
+    if (existingIndex >= 0) {
+      const newData = [...prevData];
+      newData[existingIndex] = updatedCard;
+      return newData;
+    } else {
+      return [...prevData, updatedCard];
+    }
+  });
+
+  setSelectedCard(null);
+  setIsEditing(false);
+};
+
+const updateMondayItem = async (updatedCard) => {
+  try {
+    const updates = EXPORT_COLUMNS.map((col) => {
+      return `
+        { column_id: "${col}", value: "${updatedCard[col] || ""}" }
+      `;
+    }).join(",");
+
+    const query = `
+      mutation {
+        change_multiple_column_values(item_id: ${updatedCard.id}, board_id: ${BOARD_ID}, column_values: "{${EXPORT_COLUMNS.map(col => `"${col}": \\"${(updatedCard[col] || "").replace(/"/g, '\\"')} \\"`).join(",")}}") {
+          id
+        }
+      }
+    `;
+
+    await axios.post(
+      "https://api.monday.com/v2",
+      { query },
+      {
+        headers: {
+          Authorization: MONDAY_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (err) {
+    console.error("Failed to update Monday item:", err);
+    alert("Error saving to Monday.com");
+  }
+};
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -159,20 +255,49 @@ export default function MondayTableWithExport() {
     "pending pickup": "bg-red-100",
     "unknown": "bg-yellow-100",
   };
+const archiveMondayItem = async (itemId) => {
+  try {
+    const query = `
+      mutation {
+        archive_item(item_id: ${itemId}) {
+          id
+        }
+      }
+    `;
 
-  
+    await axios.post(
+      "https://api.monday.com/v2",
+      { query },
+      {
+        headers: {
+          Authorization: MONDAY_API_KEY,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+  } catch (err) {
+    console.error("Failed to archive item on Monday.com:", err);
+    alert("Error archiving card on Monday.com");
+  }
+};
+const handleDeleteCard = async (cardToDelete) => {
+  await archiveMondayItem(cardToDelete.id);
+  setData((prev) => prev.filter((item) => item.id !== cardToDelete.id));
+};
+
+
   if (loading) {
-  return (
-    <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
-      <div className="w-2/3 max-w-md">
-        <div className="relative h-3 w-full bg-gray-200 rounded-full overflow-hidden">
-          <div className="absolute top-0 left-0 h-full bg-blue-500 animate-loading-bar w-1/2"></div>
+    return (
+      <div className="flex flex-col items-center justify-center h-screen w-full bg-white">
+        <div className="w-2/3 max-w-md">
+          <div className="relative h-3 w-full bg-gray-200 rounded-full overflow-hidden">
+            <div className="absolute top-0 left-0 h-full bg-blue-500 animate-loading-bar w-1/2"></div>
+          </div>
+          <p className="mt-4 text-gray-600 text-center text-lg">Loading data, please wait...</p>
         </div>
-        <p className="mt-4 text-gray-600 text-center text-lg">Loading data, please wait...</p>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
   if (error) return <p className="p-6 text-red-600">Error: {JSON.stringify(error)}</p>;
 
@@ -218,6 +343,16 @@ export default function MondayTableWithExport() {
           >
             Download CSV
           </button>
+
+          <button
+            onClick={() => {
+              setSelectedCard({});
+              setIsEditing(true);
+            }}
+            className="px-5 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition"
+          >
+            Log New Entry
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -228,7 +363,10 @@ export default function MondayTableWithExport() {
             return (
               <div
                 key={row.id}
-                onClick={() => setSelectedCard(row)}
+                onClick={() => {
+                  setSelectedCard(row);
+                  setIsEditing(true);
+                }}
                 className={`rounded-lg shadow-md p-4 border ${statusColor} cursor-pointer hover:shadow-lg transition`}
               >
                 <h3 className="text-lg font-semibold text-blue-800 truncate mb-2">
@@ -253,16 +391,25 @@ export default function MondayTableWithExport() {
           })}
         </div>
 
-        {/* Modal */}
-        <CardModal
-          card={selectedCard}
-          onClose={() => setSelectedCard(null)}
-          onDownload={generateCustomPDF}
-          onCourier={redirectToFastCourier}
-          EXPORT_COLUMNS={EXPORT_COLUMNS}
-          ColTitle={ColTitle}
-        />
+        {isEditing && (
+          <EditableCardModal
+  card={selectedCard}
+  onClose={() => setSelectedCard(null)}
+  onSave={handleSaveCard} // ✅ Use the correct handler here
+  onDownload={generateConnotePDF}
+  onCourier={redirectToFastCourier}
+  EXPORT_COLUMNS={EXPORT_COLUMNS}
+  ColTitle={ColTitle}
+  onDelete={handleDeleteCard}
+/>
+
+
+
+
+
+        )}
       </div>
     </div>
   );
 }
+
