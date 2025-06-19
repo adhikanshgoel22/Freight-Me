@@ -188,8 +188,7 @@ const updateMondayItem = async (updatedCard) => {
       }
     );
   } catch (err) {
-    console.error("Failed to update Monday item:", err);
-    alert("Error saving to Monday.com");
+    
   }
 };
 
